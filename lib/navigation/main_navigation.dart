@@ -727,6 +727,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
           return Scaffold(
             key: _scaffoldKey,
             backgroundColor: dark ? TColors.dark : TColors.light,
+            extendBody: true,
             appBar: isMobile
                 ? _buildMobileAppBar()
                 : isTablet
@@ -735,78 +736,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
             endDrawer: isMobile ? _buildMobileDrawer() : null,
             body: _pages[_currentIndex],
             bottomNavigationBar: isMobile
-                ? ClipRRect(
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(20),
-                      topRight: Radius.circular(20),
-                    ),
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-                      child: BottomNavigationBar(
-                        currentIndex: _currentIndex,
-                        onTap: (index) {
-                          if ((index == 2 || index == 3 || index == 4) &&
-                              !_isAuthenticated) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: const Text(
-                                  'Please sign in to access this page',
-                                ),
-                                behavior: SnackBarBehavior.floating,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                            );
-                            return;
-                          }
-                          if (index == 4 && _isAdmin != true) {
-                            return;
-                          }
-                          setState(() {
-                            _currentIndex = index;
-                          });
-                        },
-                        selectedItemColor: TColors.primary,
-                        unselectedItemColor: dark
-                            ? TColors.white
-                            : TColors.textprimary,
-                        backgroundColor: dark
-                            ? Colors.black.withOpacity(0.6)
-                            : Colors.white.withOpacity(0.8),
-                        type: BottomNavigationBarType.fixed,
-                        items: [
-                          const BottomNavigationBarItem(
-                            icon: Icon(Iconsax.home),
-                            label: 'Home',
-                          ),
-                          const BottomNavigationBarItem(
-                            icon: Icon(Iconsax.shop),
-                            label: 'Products',
-                          ),
-                          if (_isAuthenticated)
-                            const BottomNavigationBarItem(
-                              icon: Icon(Iconsax.shopping_cart),
-                              label: 'Cart',
-                            ),
-                          if (_isAuthenticated)
-                            const BottomNavigationBarItem(
-                              icon: Icon(Iconsax.profile_circle),
-                              label: 'Account',
-                            ),
-                          if (_isAuthenticated && _isAdmin == true)
-                            const BottomNavigationBarItem(
-                              icon: Icon(Iconsax.setting_2),
-                              label: 'Admin',
-                            ),
-                          const BottomNavigationBarItem(
-                            icon: Icon(Iconsax.info_circle),
-                            label: 'About Us',
-                          ),
-                        ],
-                      ),
-                    ),
-                  )
+                ? _buildBottomNavigationBar(dark)
                 : null,
             floatingActionButton: FloatingActionButton(
               onPressed: () {},
@@ -817,6 +747,141 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
         },
       ),
     );
+  }
+
+  Widget _buildBottomNavigationBar(bool dark) {
+    return Container(
+      margin: const EdgeInsets.only(top: 10, bottom: 20, left: 16, right: 16),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(30),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            decoration: BoxDecoration(
+              color: dark
+                  ? TColors.dark.withOpacity(0.5)
+                  : TColors.light.withOpacity(0.5),
+              borderRadius: BorderRadius.circular(30),
+              border: Border.all(
+                color: dark
+                    ? Colors.white.withOpacity(0.2)
+                    : Colors.black.withOpacity(0.15),
+                width: 0.5,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 6,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: _buildNavigationBar(dark),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNavigationBar(bool dark) {
+    return NavigationBarTheme(
+      data: NavigationBarThemeData(
+        labelTextStyle: WidgetStateProperty.resolveWith<TextStyle>((states) {
+          if (states.contains(WidgetState.selected)) {
+            return TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: dark ? TColors.white : TColors.primary,
+            );
+          }
+          return TextStyle(
+            fontSize: 12,
+            color: dark ? TColors.softgrey : TColors.darkGrey,
+          );
+        }),
+        iconTheme: WidgetStateProperty.resolveWith<IconThemeData>((states) {
+          return IconThemeData(
+            size: 20,
+            color: states.contains(WidgetState.selected)
+                ? TColors.primary
+                : (dark ? TColors.softgrey : TColors.darkGrey),
+          );
+        }),
+      ),
+      child: NavigationBar(
+        height: 40,
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        selectedIndex: _currentIndex,
+        onDestinationSelected: (index) {
+          if ((index == 2 || index == 3 || index == 4) && !_isAuthenticated) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: const Text('Please sign in to access this page'),
+                behavior: SnackBarBehavior.floating,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            );
+            return;
+          }
+          if (index == 4 && _isAdmin != true) {
+            return;
+          }
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+        indicatorShape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        indicatorColor: dark
+            ? TColors.primary.withOpacity(0.3)
+            : TColors.primary.withOpacity(0.3),
+        labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+        destinations: _buildNavigationDestinations(),
+      ),
+    );
+  }
+
+  List<NavigationDestination> _buildNavigationDestinations() {
+    return [
+      const NavigationDestination(
+        icon: Icon(Iconsax.home),
+        selectedIcon: Icon(Iconsax.home),
+        label: 'Home',
+      ),
+      const NavigationDestination(
+        icon: Icon(Iconsax.shop),
+        selectedIcon: Icon(Iconsax.shop),
+        label: 'Products',
+      ),
+      if (_isAuthenticated)
+        const NavigationDestination(
+          icon: Icon(Iconsax.shopping_cart),
+          selectedIcon: Icon(Iconsax.shopping_cart),
+          label: 'Cart',
+        ),
+      if (_isAuthenticated)
+        const NavigationDestination(
+          icon: Icon(Iconsax.profile_circle),
+          selectedIcon: Icon(Iconsax.profile_circle),
+          label: 'Account',
+        ),
+      if (_isAuthenticated && _isAdmin == true)
+        const NavigationDestination(
+          icon: Icon(Iconsax.setting_2),
+          selectedIcon: Icon(Iconsax.setting_2),
+          label: 'Admin',
+        ),
+      const NavigationDestination(
+        icon: Icon(Iconsax.info_circle),
+        selectedIcon: Icon(Iconsax.info_circle),
+        label: 'About Us',
+      ),
+    ];
   }
 
   AppBar _buildDesktopAppBar() {
@@ -830,13 +895,26 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
       elevation: 0,
       scrolledUnderElevation: 0,
       toolbarHeight: 80,
-      title: Container(
-        padding: const EdgeInsets.all(8),
-        child: Image.asset(
-          'assets/images/mbb_logo.png',
-          height: 60,
-          fit: BoxFit.contain,
-        ),
+      title: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            child: Image.asset(
+              'assets/images/mbb_logo.png',
+              height: 60,
+              fit: BoxFit.contain,
+            ),
+          ),
+          const SizedBox(width: 5),
+          Text(
+            'MBB AgroTech',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: TColors.primary,
+            ),
+          ),
+        ],
       ),
       actions: [
         _buildNavItemWithDropdown('Home', 0),
@@ -881,14 +959,26 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
       automaticallyImplyLeading: false,
       scrolledUnderElevation: 0,
       toolbarHeight: 70,
-      title: Container(
-        padding: const EdgeInsets.all(8),
-        alignment: Alignment.centerLeft,
-        child: Image.asset(
-          'assets/images/mbb_logo.png',
-          height: 50,
-          fit: BoxFit.contain,
-        ),
+      title: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            child: Image.asset(
+              'assets/images/mbb_logo.png',
+              height: 50,
+              fit: BoxFit.contain,
+            ),
+          ),
+          const SizedBox(width: 4),
+          Text(
+            'MBB Agrotech',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: TColors.primary,
+            ),
+          ),
+        ],
       ),
       actions: [
         _buildNavItemWithDropdown('Home', 0),
@@ -1077,14 +1167,26 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
       elevation: 0,
       automaticallyImplyLeading: false,
       scrolledUnderElevation: 0,
-      title: Container(
-        padding: const EdgeInsets.all(8),
-        alignment: Alignment.centerLeft,
-        child: Image.asset(
-          'assets/images/mbb_logo.png',
-          height: 50,
-          fit: BoxFit.contain,
-        ),
+      title: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            child: Image.asset(
+              'assets/images/mbb_logo.png',
+              height: 50,
+              fit: BoxFit.contain,
+            ),
+          ),
+          const SizedBox(width: 4),
+          Text(
+            'MBB Agrotech',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+              color: TColors.primary,
+            ),
+          ),
+        ],
       ),
       actions: [
         IconButton(
