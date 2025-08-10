@@ -1,0 +1,13 @@
+bool isConnected = false;
+String userName = "User";
+var userEmail;
+var accountNumber;
+var accountBalance;
+var accountName;
+var bankName;
+var account_number;
+String mAccountNumber = '';
+var selected_mode;
+var mUserValue;
+var iucName;
+var themeColor;
