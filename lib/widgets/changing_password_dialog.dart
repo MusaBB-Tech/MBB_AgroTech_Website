@@ -37,7 +37,7 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
     final confirmPassword = confirmPasswordController.text.trim();
 
     if (newPassword != confirmPassword) {
-      showCustomSnackbar(
+      CustomSnackbar.error(
         context,
         'New password and confirm password do not match.',
       );
@@ -45,7 +45,7 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
     }
 
     if (newPassword.isEmpty || oldPassword.isEmpty || confirmPassword.isEmpty) {
-      showCustomSnackbar(context, 'Please fill in all fields.');
+      CustomSnackbar.warning(context, 'Please fill in all fields.');
       return;
     }
 
@@ -57,7 +57,7 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
       final supabase = Supabase.instance.client;
       final user = supabase.auth.currentUser;
       if (user == null) {
-        showCustomSnackbar(context, 'No user logged in.');
+        CustomSnackbar.error(context, 'No user logged in.');
         return;
       }
 
@@ -68,12 +68,11 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
 
       await supabase.auth.updateUser(UserAttributes(password: newPassword));
 
-      showCustomSnackbar(context, 'Password updated successfully.');
+      CustomSnackbar.success(context, 'Password updated successfully.');
       Navigator.of(context).pop();
     } on AuthException catch (e) {
-      showCustomSnackbar(context, e.message);
     } catch (e) {
-      showCustomSnackbar(context, 'An unexpected error occurred.');
+      CustomSnackbar.error(context, 'An unexpected error occurred.');
     } finally {
       setState(() {
         isLoading = false;

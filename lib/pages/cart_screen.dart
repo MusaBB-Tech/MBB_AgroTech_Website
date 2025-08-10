@@ -39,7 +39,7 @@ class _CartScreenState extends State<CartScreen> {
     final userId = supabase.auth.currentUser?.id;
     if (userId == null) {
       if (mounted) {
-        showCustomSnackbar(context, 'Please sign in to view your cart');
+        CustomSnackbar.warning(context, 'Please sign in to view your cart');
       }
       setState(() {
         _isLoading = false;
@@ -71,7 +71,7 @@ class _CartScreenState extends State<CartScreen> {
           _isLoading = false;
           _hasError = true;
         });
-        showCustomSnackbar(context, 'Error fetching cart items');
+        CustomSnackbar.error(context, 'Error fetching cart items');
       }
     }
   }
@@ -104,7 +104,7 @@ class _CartScreenState extends State<CartScreen> {
     } catch (error) {
       debugPrint('Error updating quantity: $error');
       if (mounted) {
-        showCustomSnackbar(context, 'Error updating quantity');
+        CustomSnackbar.error(context, 'Error updating quantity');
       }
     }
   }
@@ -120,12 +120,12 @@ class _CartScreenState extends State<CartScreen> {
           _calculateTotal();
         });
         await _fetchCartItems();
-        showCustomSnackbar(context, 'Item removed from cart');
+        CustomSnackbar.success(context, 'Item removed from cart');
       }
     } catch (error) {
       debugPrint('Error removing item: $error');
       if (mounted) {
-        showCustomSnackbar(context, 'Error removing item');
+        CustomSnackbar.error(context, 'Error removing item');
       }
     }
   }
@@ -133,7 +133,7 @@ class _CartScreenState extends State<CartScreen> {
   Future<void> _checkout() async {
     if (_selectedItems.isEmpty) {
       if (mounted) {
-        showCustomSnackbar(context, 'Please select items to checkout');
+        CustomSnackbar.info(context, 'Please select items to checkout');
       }
       return;
     }
@@ -246,7 +246,7 @@ class _CartScreenState extends State<CartScreen> {
     } catch (error) {
       debugPrint('Checkout error: $error');
       if (mounted) {
-        showCustomSnackbar(context, 'Checkout failed: ${error.toString()}');
+        CustomSnackbar.error(context, 'Checkout failed: ${error.toString()}');
         setState(() {
           _hasError = true;
         });
@@ -264,7 +264,7 @@ class _CartScreenState extends State<CartScreen> {
     final userId = supabase.auth.currentUser?.id;
     if (userId == null) {
       if (mounted) {
-        showCustomSnackbar(context, 'Please sign in to place an order');
+        CustomSnackbar.warning(context, 'Please sign in to place an order');
       }
       return;
     }
@@ -310,13 +310,13 @@ class _CartScreenState extends State<CartScreen> {
       }
 
       if (mounted) {
-        showCustomSnackbar(context, 'Order placed successfully!');
+        CustomSnackbar.success(context, 'Order placed successfully!');
         await _fetchCartItems();
       }
     } catch (error) {
       debugPrint('Error creating order: $error');
       if (mounted) {
-        showCustomSnackbar(context, 'Error placing order: $error');
+        CustomSnackbar.error(context, 'Error placing order');
         setState(() {
           _hasError = true;
         });

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../utils/constants/colors.dart';
 
@@ -46,6 +48,8 @@ class Footer extends StatelessWidget {
               : _buildDesktopFooterContent(theme, dark),
           const SizedBox(height: 16.0),
           Divider(color: dark ? TColors.darkGrey : Colors.white24, height: 1.0),
+          const SizedBox(height: 12.0),
+          _buildSocialMediaSection(context, dark, isMobile, isTablet),
           const SizedBox(height: 12.0),
           Text(
             '© ${DateTime.now().year} MBB Agrotech. All rights reserved.',
@@ -404,5 +408,106 @@ class Footer extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  Widget _buildSocialMediaSection(
+    BuildContext context,
+    bool dark,
+    bool isMobile,
+    bool isTablet,
+  ) {
+    final theme = Theme.of(context);
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(
+        horizontal: isMobile ? 12.0 : 20.0,
+        vertical: isMobile ? 12.0 : 16.0,
+      ),
+      decoration: BoxDecoration(
+        color: dark
+            ? TColors.dark.withOpacity(0.4)
+            : TColors.light.withOpacity(0.4),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: dark
+              ? Colors.white.withOpacity(0.1)
+              : Colors.black.withOpacity(0.1),
+          width: 0.5,
+        ),
+      ),
+      child: Column(
+        children: [
+          Text(
+            'Connect with us',
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: dark ? Colors.white70 : TColors.darkGrey,
+              fontSize: isMobile ? 13.0 : 14.0,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _buildSocialIcon(
+                icon: FontAwesomeIcons.facebookF,
+                color: const Color(0xFF1877F2),
+                size: isMobile ? 16.0 : 18.0,
+                onTap: () => _launchUrl(context, 'https://facebook.com'),
+              ),
+              _buildSocialIcon(
+                icon: FontAwesomeIcons.xTwitter,
+                color: const Color(0xFF000000),
+                size: isMobile ? 16.0 : 18.0,
+                onTap: () => _launchUrl(context, 'https://twitter.com'),
+              ),
+              _buildSocialIcon(
+                icon: FontAwesomeIcons.instagram,
+                color: const Color(0xFFE4405F),
+                size: isMobile ? 16.0 : 18.0,
+                onTap: () => _launchUrl(context, 'https://instagram.com'),
+              ),
+              _buildSocialIcon(
+                icon: FontAwesomeIcons.linkedinIn,
+                color: const Color(0xFF0A66C2),
+                size: isMobile ? 16.0 : 18.0,
+                onTap: () => _launchUrl(context, 'https://linkedin.com'),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSocialIcon({
+    required IconData icon,
+    required Color color,
+    required double size,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        width: size * 2,
+        height: size * 2,
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.1),
+          shape: BoxShape.circle,
+        ),
+        child: Center(
+          child: FaIcon(icon, size: size, color: color),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _launchUrl(BuildContext context, String url) async {
+    final Uri uri = Uri.parse(url);
+    if (!await launchUrl(uri)) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Could not launch $url')));
+    }
   }
 }

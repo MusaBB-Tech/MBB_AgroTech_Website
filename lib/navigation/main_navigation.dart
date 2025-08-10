@@ -204,29 +204,12 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
   void _showSignInDialog() {
     showDialog(
       context: context,
-      builder: (context) => Dialog(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(20),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-            child: Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: THelperFunctions.isDarkMode(context)
-                    ? Colors.black.withOpacity(0.6)
-                    : Colors.white.withOpacity(0.8),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: THelperFunctions.isDarkMode(context)
-                      ? Colors.white.withOpacity(0.2)
-                      : Colors.black.withOpacity(0.1),
-                ),
-              ),
-              child: const SigningSignupDialog(),
-            ),
-          ),
+      builder: (context) => SizedBox(
+        width: 500,
+        child: SigningSignupDialog(
+          onSuccess: () {
+            Navigator.pop(context);
+          },
         ),
       ),
     );
@@ -843,9 +826,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
             MediaQuery.of(context).platformBrightness == Brightness.dark);
 
     return AppBar(
-      backgroundColor: dark
-          ? Colors.black.withOpacity(0.6)
-          : Colors.white.withOpacity(0.8),
+      backgroundColor: dark ? TColors.dark : TColors.light,
       elevation: 0,
       scrolledUnderElevation: 0,
       toolbarHeight: 80,
@@ -895,9 +876,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
             MediaQuery.of(context).platformBrightness == Brightness.dark);
 
     return AppBar(
-      backgroundColor: dark
-          ? Colors.black.withOpacity(0.6)
-          : Colors.white.withOpacity(0.8),
+      backgroundColor: dark ? TColors.dark : TColors.light,
       elevation: 0,
       automaticallyImplyLeading: false,
       scrolledUnderElevation: 0,
@@ -1094,9 +1073,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
             MediaQuery.of(context).platformBrightness == Brightness.dark);
 
     return AppBar(
-      backgroundColor: dark
-          ? Colors.black.withOpacity(0.6)
-          : Colors.white.withOpacity(0.8),
+      backgroundColor: dark ? TColors.dark : TColors.light,
       elevation: 0,
       automaticallyImplyLeading: false,
       scrolledUnderElevation: 0,

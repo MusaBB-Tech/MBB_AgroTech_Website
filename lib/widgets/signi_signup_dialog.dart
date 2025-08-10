@@ -5,9 +5,10 @@ import '../utils/constants/colors.dart';
 import '../widgets/custom_loading.dart';
 import '../utils/showSnackBar.dart';
 import '../utils/helpers/helper_functions.dart';
+import 'dart:ui';
 
 class SigningSignupDialog extends StatefulWidget {
-  const SigningSignupDialog({super.key});
+  const SigningSignupDialog({super.key, required Null Function() onSuccess});
 
   @override
   State<SigningSignupDialog> createState() => _SigningSignupDialogState();
@@ -41,94 +42,117 @@ class _SigningSignupDialogState extends State<SigningSignupDialog>
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(30),
           ),
-          child: SizedBox(
-            width: 400,
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: dark ? TColors.darkContainer : TColors.lightContainer,
-                borderRadius: BorderRadius.circular(30),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: Text(
-                      'Sign In / Sign Up',
-                      style: Theme.of(context).textTheme.headlineSmall,
-                    ),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(30),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: dark
+                      ? Colors.black.withOpacity(0.6)
+                      : Colors.white.withOpacity(0.8),
+                  borderRadius: BorderRadius.circular(30),
+                  border: Border.all(
+                    color: dark
+                        ? Colors.white.withOpacity(0.2)
+                        : Colors.black.withOpacity(0.1),
                   ),
-                  const SizedBox(height: 16),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10.0,
-                      vertical: 5.0,
-                    ),
-                    decoration: BoxDecoration(
-                      color: dark ? TColors.dark : TColors.light,
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    child: TabBar(
-                      controller: _tabController,
-                      isScrollable: false,
-                      unselectedLabelColor: dark
-                          ? TColors.white.withOpacity(0.6)
-                          : TColors.black.withOpacity(0.6),
-                      labelColor: TColors.white,
-                      labelStyle: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Text(
+                        'Sign In / Sign Up',
+                        style: Theme.of(context).textTheme.headlineSmall
+                            ?.copyWith(
+                              color: dark ? Colors.white : TColors.dark,
+                            ),
                       ),
-                      unselectedLabelStyle: const TextStyle(fontSize: 12),
-                      indicator: BoxDecoration(
+                    ),
+                    const SizedBox(height: 16),
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 10.0,
+                        vertical: 5.0,
+                      ),
+                      decoration: BoxDecoration(
+                        color: dark
+                            ? Colors.black.withOpacity(0.4)
+                            : Colors.white.withOpacity(0.6),
                         borderRadius: BorderRadius.circular(30),
-                        color: TColors.primary,
+                        border: Border.all(
+                          color: dark
+                              ? Colors.white.withOpacity(0.1)
+                              : Colors.black.withOpacity(0.1),
+                        ),
                       ),
-                      indicatorSize: TabBarIndicatorSize.tab,
-                      indicatorPadding: const EdgeInsets.symmetric(
-                        horizontal: 3.0,
-                        vertical: 3.0,
+                      child: TabBar(
+                        controller: _tabController,
+                        isScrollable: false,
+                        unselectedLabelColor: dark
+                            ? TColors.white.withOpacity(0.6)
+                            : TColors.black.withOpacity(0.6),
+                        labelColor: TColors.white,
+                        labelStyle: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        unselectedLabelStyle: TextStyle(fontSize: 12),
+                        indicator: BoxDecoration(
+                          borderRadius: BorderRadius.circular(30),
+                          color: TColors.primary,
+                        ),
+                        indicatorSize: TabBarIndicatorSize.tab,
+                        indicatorPadding: EdgeInsets.symmetric(
+                          horizontal: 3.0,
+                          vertical: 3.0,
+                        ),
+                        labelPadding: EdgeInsets.symmetric(horizontal: 12.0),
+                        dividerColor: Colors.transparent,
+                        tabs: const [
+                          Tab(text: 'Sign In'),
+                          Tab(text: 'Sign Up'),
+                        ],
                       ),
-                      labelPadding: const EdgeInsets.symmetric(
-                        horizontal: 12.0,
-                      ),
-                      dividerColor: Colors.transparent,
-                      tabs: const [
-                        Tab(text: 'Sign In'),
-                        Tab(text: 'Sign Up'),
-                      ],
                     ),
-                  ),
-                  const SizedBox(height: 20),
-                  SizedBox(
-                    height: 400,
-                    child: TabBarView(
-                      controller: _tabController,
-                      children: [
-                        _SignInTab(dark: dark),
-                        _SignUpTab(dark: dark),
-                      ],
+
+                    const SizedBox(height: 20),
+                    SizedBox(
+                      height: 400,
+                      child: TabBarView(
+                        controller: _tabController,
+                        children: [
+                          _SignInTab(dark: dark),
+                          _SignUpTab(dark: dark),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
         ),
         Positioned(
           right: 20,
-          top: 110,
+          top: 20,
           child: Material(
             type: MaterialType.transparency,
             child: InkWell(
               borderRadius: BorderRadius.circular(20),
               onTap: () => Navigator.of(context).pop(),
               child: Container(
-                padding: const EdgeInsets.all(4),
+                padding: EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: dark ? Colors.black54 : Colors.white54,
+                  color: dark
+                      ? Colors.black.withOpacity(0.6)
+                      : Colors.white.withOpacity(0.8),
                 ),
                 child: Icon(
                   Icons.close,
@@ -163,15 +187,37 @@ class _SignInTabState extends State<_SignInTab> {
   InputDecoration _inputDecoration(String hintText, IconData icon) {
     return InputDecoration(
       hintText: hintText,
-      hintStyle: Theme.of(context).textTheme.bodySmall,
+      hintStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
+        color: widget.dark
+            ? Colors.white.withOpacity(0.7)
+            : Colors.black.withOpacity(0.6),
+      ),
       contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
       prefixIcon: Icon(icon, color: TColors.primary),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
         borderSide: BorderSide.none,
       ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: BorderSide(
+          color: widget.dark
+              ? Colors.white.withOpacity(0.1)
+              : Colors.black.withOpacity(0.1),
+        ),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: BorderSide(
+          color: widget.dark
+              ? Colors.white.withOpacity(0.1)
+              : Colors.black.withOpacity(0.1),
+        ),
+      ),
       filled: true,
-      fillColor: widget.dark ? TColors.dark : TColors.light,
+      fillColor: widget.dark
+          ? Colors.black.withOpacity(0.4)
+          : Colors.white.withOpacity(0.6),
       suffixIcon: hintText.toLowerCase().contains('password')
           ? IconButton(
               icon: Icon(
@@ -190,7 +236,7 @@ class _SignInTabState extends State<_SignInTab> {
 
   Future<void> _handleSignIn() async {
     if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
-      showCustomSnackbar(context, 'Please fill all fields');
+      CustomSnackbar.warning(context, 'Please fill all fields');
       return;
     }
 
@@ -209,7 +255,7 @@ class _SignInTabState extends State<_SignInTab> {
         Navigator.of(context).pop(); // Close dialog on success
       }
     } on AuthException {
-      // showCustomSnackbar(context, 'Invalid Credentials, please try again');
+      CustomSnackbar.error(context, 'Invalid Credentials, please try again');
     } finally {
       setState(() {
         _isLoading = false;
@@ -228,14 +274,18 @@ class _SignInTabState extends State<_SignInTab> {
           TextField(
             controller: _emailController,
             keyboardType: TextInputType.emailAddress,
-            style: Theme.of(context).textTheme.bodyMedium,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: widget.dark ? Colors.white : Colors.black,
+            ),
             decoration: _inputDecoration('Email Address', Iconsax.sms),
           ),
           const SizedBox(height: 12),
           TextField(
             controller: _passwordController,
             obscureText: !_isPasswordVisible,
-            style: Theme.of(context).textTheme.bodyMedium,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: widget.dark ? Colors.white : Colors.black,
+            ),
             decoration: _inputDecoration('Password', Iconsax.lock),
           ),
           const SizedBox(height: 12),
@@ -255,7 +305,9 @@ class _SignInTabState extends State<_SignInTab> {
                   ),
                   Text(
                     'Remember Me',
-                    style: Theme.of(context).textTheme.bodySmall,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: widget.dark ? Colors.white : Colors.black,
+                    ),
                   ),
                 ],
               ),
@@ -282,7 +334,10 @@ class _SignInTabState extends State<_SignInTab> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),
-                    side: const BorderSide(color: TColors.primary),
+                    side: BorderSide(color: TColors.primary),
+                    backgroundColor: widget.dark
+                        ? Colors.black.withOpacity(0.4)
+                        : Colors.white.withOpacity(0.6),
                   ),
                   child: Text(
                     'Cancel',
@@ -348,15 +403,37 @@ class _SignUpTabState extends State<_SignUpTab> {
   InputDecoration _inputDecoration(String hintText, IconData icon) {
     return InputDecoration(
       hintText: hintText,
-      hintStyle: Theme.of(context).textTheme.bodySmall,
+      hintStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
+        color: widget.dark
+            ? Colors.white.withOpacity(0.7)
+            : Colors.black.withOpacity(0.6),
+      ),
       contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
       prefixIcon: Icon(icon, color: TColors.primary),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
         borderSide: BorderSide.none,
       ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: BorderSide(
+          color: widget.dark
+              ? Colors.white.withOpacity(0.1)
+              : Colors.black.withOpacity(0.1),
+        ),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: BorderSide(
+          color: widget.dark
+              ? Colors.white.withOpacity(0.1)
+              : Colors.black.withOpacity(0.1),
+        ),
+      ),
       filled: true,
-      fillColor: widget.dark ? TColors.dark : TColors.light,
+      fillColor: widget.dark
+          ? Colors.black.withOpacity(0.4)
+          : Colors.white.withOpacity(0.6),
       suffixIcon: hintText.toLowerCase().contains('password')
           ? IconButton(
               icon: Icon(
@@ -382,7 +459,7 @@ class _SignUpTabState extends State<_SignUpTab> {
         _confirmPasswordController.text.isEmpty ||
         _confirmPasswordController.text != _passwordController.text ||
         !_isTermsAccepted) {
-      showCustomSnackbar(
+      CustomSnackbar.warning(
         context,
         'Please fill all fields correctly and accept terms',
       );
@@ -407,13 +484,16 @@ class _SignUpTabState extends State<_SignUpTab> {
       );
 
       if (response.user != null) {
-        // showCustomSnackbar(context, 'Registration successful!');
+        CustomSnackbar.success(
+          context,
+          'Registration successful! Please check your email.',
+        );
         Navigator.of(context).pop(); // Close dialog on success
       }
     } on AuthException {
-      // showCustomSnackbar(context, 'Error: ');
+      CustomSnackbar.error(context, 'Error');
     } catch (e) {
-      // showCustomSnackbar(context, 'Unexpected error');
+      CustomSnackbar.error(context, 'Unexpected error');
     } finally {
       setState(() {
         _isLoading = false;
@@ -434,7 +514,9 @@ class _SignUpTabState extends State<_SignUpTab> {
               Expanded(
                 child: TextField(
                   controller: _firstNameController,
-                  style: Theme.of(context).textTheme.bodyMedium,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: widget.dark ? Colors.white : Colors.black,
+                  ),
                   decoration: _inputDecoration('First Name', Iconsax.user),
                 ),
               ),
@@ -442,7 +524,9 @@ class _SignUpTabState extends State<_SignUpTab> {
               Expanded(
                 child: TextField(
                   controller: _lastNameController,
-                  style: Theme.of(context).textTheme.bodyMedium,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: widget.dark ? Colors.white : Colors.black,
+                  ),
                   decoration: _inputDecoration('Last Name', Iconsax.user),
                 ),
               ),
@@ -452,21 +536,27 @@ class _SignUpTabState extends State<_SignUpTab> {
           TextField(
             controller: _emailController,
             keyboardType: TextInputType.emailAddress,
-            style: Theme.of(context).textTheme.bodyMedium,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: widget.dark ? Colors.white : Colors.black,
+            ),
             decoration: _inputDecoration('Email Address', Iconsax.message),
           ),
           const SizedBox(height: 12),
           TextField(
             controller: _passwordController,
             obscureText: !_isPasswordVisible,
-            style: Theme.of(context).textTheme.bodyMedium,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: widget.dark ? Colors.white : Colors.black,
+            ),
             decoration: _inputDecoration('Password', Iconsax.lock),
           ),
           const SizedBox(height: 12),
           TextField(
             controller: _confirmPasswordController,
             obscureText: !_isPasswordVisible,
-            style: Theme.of(context).textTheme.bodyMedium,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: widget.dark ? Colors.white : Colors.black,
+            ),
             decoration: _inputDecoration('Confirm Password', Iconsax.lock),
           ),
           const SizedBox(height: 12),
@@ -484,7 +574,9 @@ class _SignUpTabState extends State<_SignUpTab> {
               Expanded(
                 child: Text(
                   'By registering, you agree to our Privacy Policy and Terms & Conditions.',
-                  style: Theme.of(context).textTheme.bodySmall,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: widget.dark ? Colors.white : Colors.black,
+                  ),
                 ),
               ),
             ],
@@ -499,7 +591,10 @@ class _SignUpTabState extends State<_SignUpTab> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),
-                    side: const BorderSide(color: TColors.primary),
+                    side: BorderSide(color: TColors.primary),
+                    backgroundColor: widget.dark
+                        ? Colors.black.withOpacity(0.4)
+                        : Colors.white.withOpacity(0.6),
                   ),
                   child: Text(
                     'Cancel',
@@ -516,8 +611,8 @@ class _SignUpTabState extends State<_SignUpTab> {
                     backgroundColor: _isTermsAccepted
                         ? TColors.primary
                         : widget.dark
-                        ? TColors.darkContainer
-                        : TColors.lightContainer,
+                        ? Colors.black.withOpacity(0.4)
+                        : Colors.white.withOpacity(0.6),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),

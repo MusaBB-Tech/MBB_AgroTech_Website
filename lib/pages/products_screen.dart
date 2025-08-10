@@ -110,7 +110,7 @@ class _ProductsScreenState extends State<ProductsScreen>
         _isLoading = false;
       });
       if (mounted) {
-        showCustomSnackbar(context, 'Error fetching products: $error');
+        CustomSnackbar.error(context, 'Error fetching products: $error');
       }
     }
   }
@@ -164,7 +164,7 @@ class _ProductsScreenState extends State<ProductsScreen>
   void _addToCart(Map<String, dynamic> product) async {
     final userId = supabase.auth.currentUser?.id;
     if (userId == null) {
-      showCustomSnackbar(context, 'Please sign in to add to cart');
+      CustomSnackbar.error(context, 'Please sign in to add to cart');
       return;
     }
 
@@ -209,7 +209,7 @@ class _ProductsScreenState extends State<ProductsScreen>
       );
     } catch (error) {
       debugPrint('Error adding to cart: $error');
-      showCustomSnackbar(context, 'Error adding to cart');
+      CustomSnackbar.error(context, 'Error adding to cart');
     }
   }
 

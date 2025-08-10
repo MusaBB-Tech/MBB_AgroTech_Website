@@ -138,7 +138,7 @@ class _AdminPanelState extends State<AdminPanel>
         _isLoadingProducts = false;
       });
       if (mounted) {
-        showCustomSnackbar(context, 'Error fetching products: $error');
+        CustomSnackbar.error(context, 'Error fetching products: $error');
       }
     }
   }
@@ -161,7 +161,7 @@ class _AdminPanelState extends State<AdminPanel>
         _isLoadingOrders = false;
       });
       if (mounted) {
-        showCustomSnackbar(context, 'Error fetching orders: $e');
+        CustomSnackbar.error(context, 'Error fetching orders: $e');
       }
     }
   }
@@ -251,7 +251,7 @@ class _AdminPanelState extends State<AdminPanel>
     } catch (e) {
       debugPrint('Error uploading image $imageNumber: $e');
       if (mounted) {
-        showCustomSnackbar(context, 'Error uploading image: ${e.toString()}');
+        CustomSnackbar.error(context, 'Error uploading image: ${e.toString()}');
       }
       return null;
     }
@@ -261,7 +261,7 @@ class _AdminPanelState extends State<AdminPanel>
     if (_nameController.text.isEmpty ||
         _priceController.text.isEmpty ||
         _stockController.text.isEmpty) {
-      showCustomSnackbar(context, 'Please fill in all required fields');
+      CustomSnackbar.warning(context, 'Please fill in all required fields');
       return;
     }
 
@@ -313,11 +313,11 @@ class _AdminPanelState extends State<AdminPanel>
 
       await _fetchProducts(_currentCategory);
       if (mounted) {
-        showCustomSnackbar(context, 'Product added successfully');
+        CustomSnackbar.success(context, 'Product added successfully');
       }
     } catch (e) {
       if (mounted) {
-        showCustomSnackbar(context, 'Error adding product: $e');
+        CustomSnackbar.error(context, 'Error adding product');
       }
     }
   }
@@ -326,7 +326,7 @@ class _AdminPanelState extends State<AdminPanel>
     if (_nameController.text.isEmpty ||
         _priceController.text.isEmpty ||
         _stockController.text.isEmpty) {
-      showCustomSnackbar(context, 'Please fill in all required fields');
+      CustomSnackbar.warning(context, 'Please fill in all required fields');
       return;
     }
 
@@ -383,11 +383,11 @@ class _AdminPanelState extends State<AdminPanel>
 
       await _fetchProducts(_currentCategory);
       if (mounted) {
-        showCustomSnackbar(context, 'Product updated successfully');
+        CustomSnackbar.success(context, 'Product updated successfully');
       }
     } catch (e) {
       if (mounted) {
-        showCustomSnackbar(context, 'Error updating product: $e');
+        CustomSnackbar.error(context, 'Error updating product');
       }
     }
   }
@@ -426,11 +426,11 @@ class _AdminPanelState extends State<AdminPanel>
       await supabase.from('products').delete().eq('id', id);
       await _fetchProducts(_currentCategory);
       if (mounted) {
-        showCustomSnackbar(context, 'Product deleted successfully');
+        CustomSnackbar.success(context, 'Product deleted successfully');
       }
     } catch (e) {
       if (mounted) {
-        showCustomSnackbar(context, 'Error deleting product: $e');
+        CustomSnackbar.error(context, 'Error deleting product');
       }
     }
   }
@@ -443,11 +443,11 @@ class _AdminPanelState extends State<AdminPanel>
           .eq('id', orderId);
       await _fetchOrders();
       if (mounted) {
-        showCustomSnackbar(context, 'Order status updated successfully');
+        CustomSnackbar.success(context, 'Order status updated successfully');
       }
     } catch (e) {
       if (mounted) {
-        showCustomSnackbar(context, 'Error updating order status: $e');
+        CustomSnackbar.error(context, 'Error updating order status');
       }
     }
   }
@@ -458,11 +458,11 @@ class _AdminPanelState extends State<AdminPanel>
       await supabase.from('order_headers').delete().eq('id', orderId);
       await _fetchOrders();
       if (mounted) {
-        showCustomSnackbar(context, 'Order deleted successfully');
+        CustomSnackbar.success(context, 'Order deleted successfully');
       }
     } catch (e) {
       if (mounted) {
-        showCustomSnackbar(context, 'Error deleting order: $e');
+        CustomSnackbar.error(context, 'Error deleting order');
       }
     }
   }
@@ -481,7 +481,7 @@ class _AdminPanelState extends State<AdminPanel>
         // Validate file size (5MB limit)
         if (file.size > 5 * 1024 * 1024) {
           if (mounted) {
-            showCustomSnackbar(context, 'Image size must be less than 5MB');
+            CustomSnackbar.error(context, 'Image size must be less than 5MB');
           }
           return;
         }
@@ -490,7 +490,7 @@ class _AdminPanelState extends State<AdminPanel>
         String? extension = file.extension?.toLowerCase();
         if (!['jpg', 'jpeg', 'png'].contains(extension)) {
           if (mounted) {
-            showCustomSnackbar(
+            CustomSnackbar.warning(
               context,
               'Only JPG, JPEG, and PNG images are allowed',
             );
@@ -518,7 +518,7 @@ class _AdminPanelState extends State<AdminPanel>
     } catch (e) {
       debugPrint('Error picking image: $e');
       if (mounted) {
-        showCustomSnackbar(context, 'Error picking image: ${e.toString()}');
+        CustomSnackbar.error(context, 'Error picking image: ${e.toString()}');
       }
     }
   }
