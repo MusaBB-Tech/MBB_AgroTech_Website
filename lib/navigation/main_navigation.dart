@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:mbb_agrotech_website/pages/admin_panel.dart';
@@ -34,14 +36,13 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
   ThemeMode _currentThemeMode = ThemeMode.system;
   bool? _isAdmin;
 
-  // Updated _pages list to include AboutUsScreen
   final List<Widget> _pages = const [
     HomePage(),
     ProductsScreen(),
     CartScreen(),
     ProfileScreen(),
     AdminPanel(),
-    AboutUsScreen(), // Added AboutUsScreen with index 5
+    AboutUsScreen(),
   ];
 
   final Map<String, List<Map<String, dynamic>>> _dropdownItems = {
@@ -150,7 +151,6 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
         'index': 4,
       },
     ],
-    // Added About Us to dropdown items
     'About Us': [
       {
         'title': 'About Us',
@@ -204,7 +204,31 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
   void _showSignInDialog() {
     showDialog(
       context: context,
-      builder: (context) => const SigningSignupDialog(),
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(20),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+            child: Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: THelperFunctions.isDarkMode(context)
+                    ? Colors.black.withOpacity(0.6)
+                    : Colors.white.withOpacity(0.8),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: THelperFunctions.isDarkMode(context)
+                      ? Colors.white.withOpacity(0.2)
+                      : Colors.black.withOpacity(0.1),
+                ),
+              ),
+              child: const SigningSignupDialog(),
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -216,9 +240,15 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
         _isAdmin = false;
       });
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Sign-out failed: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Sign-out failed: $e'),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      );
     }
   }
 
@@ -228,7 +258,13 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
     if ((label == 'Cart' || label == 'Account' || label == 'Admin') &&
         !_isAuthenticated) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please sign in to access this page')),
+        SnackBar(
+          content: const Text('Please sign in to access this page'),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
       );
       return;
     }
@@ -257,21 +293,31 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
         top: position.dy + size.height,
         width: dropdownWidth,
         child: Material(
-          elevation: 4,
-          borderRadius: BorderRadius.circular(12),
-          child: Container(
-            decoration: BoxDecoration(
-              color: THelperFunctions.isDarkMode(context)
-                  ? TColors.darkContainer
-                  : TColors.lightContainer,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: TColors.grey.withOpacity(0.1)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: _dropdownItems[label]!
-                  .map((item) => _buildDropdownItem(item))
-                  .toList(),
+          elevation: 0,
+          color: Colors.transparent,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: THelperFunctions.isDarkMode(context)
+                      ? Colors.black.withOpacity(0.6)
+                      : Colors.white.withOpacity(0.8),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: THelperFunctions.isDarkMode(context)
+                        ? Colors.white.withOpacity(0.2)
+                        : Colors.black.withOpacity(0.1),
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: _dropdownItems[label]!
+                      .map((item) => _buildDropdownItem(item))
+                      .toList(),
+                ),
+              ),
             ),
           ),
         ),
@@ -301,31 +347,45 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
         top: position.dy + size.height,
         width: dropdownWidth,
         child: Material(
-          elevation: 4,
-          borderRadius: BorderRadius.circular(12),
-          child: Container(
-            decoration: BoxDecoration(
-              color: THelperFunctions.isDarkMode(context)
-                  ? TColors.darkContainer
-                  : TColors.lightContainer,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: TColors.grey.withOpacity(0.1)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildThemeDropdownItem(
-                  'Light',
-                  Iconsax.sun_1,
-                  ThemeMode.light,
+          elevation: 0,
+          color: Colors.transparent,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: THelperFunctions.isDarkMode(context)
+                      ? Colors.black.withOpacity(0.6)
+                      : Colors.white.withOpacity(0.8),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: THelperFunctions.isDarkMode(context)
+                        ? Colors.white.withOpacity(0.2)
+                        : Colors.black.withOpacity(0.1),
+                  ),
                 ),
-                _buildThemeDropdownItem('Dark', Iconsax.moon, ThemeMode.dark),
-                _buildThemeDropdownItem(
-                  'System',
-                  Iconsax.cpu,
-                  ThemeMode.system,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildThemeDropdownItem(
+                      'Light',
+                      Iconsax.sun_1,
+                      ThemeMode.light,
+                    ),
+                    _buildThemeDropdownItem(
+                      'Dark',
+                      Iconsax.moon,
+                      ThemeMode.dark,
+                    ),
+                    _buildThemeDropdownItem(
+                      'System',
+                      Iconsax.cpu,
+                      ThemeMode.system,
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
         ),
@@ -341,6 +401,8 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
     ThemeMode themeMode,
   ) {
     final isSelected = _currentThemeMode == themeMode;
+    final dark = THelperFunctions.isDarkMode(context);
+
     return InkWell(
       onTap: () {
         setState(() {
@@ -365,7 +427,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
               size: 20,
               color: isSelected
                   ? TColors.primary
-                  : THelperFunctions.isDarkMode(context)
+                  : dark
                   ? TColors.white
                   : TColors.textprimary,
             ),
@@ -378,7 +440,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                   color: isSelected
                       ? TColors.primary
-                      : THelperFunctions.isDarkMode(context)
+                      : dark
                       ? TColors.white
                       : TColors.textprimary,
                 ),
@@ -414,6 +476,8 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
   }
 
   Widget _buildDropdownItem(Map<String, dynamic> item) {
+    final dark = THelperFunctions.isDarkMode(context);
+
     return InkWell(
       onTap: () {
         _removeDropdown();
@@ -427,7 +491,13 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
                 item['title'] == 'Sign Out' ||
                 item['title'] == 'Admin Panel')) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Please sign in to access this page')),
+            SnackBar(
+              content: const Text('Please sign in to access this page'),
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
           );
           return;
         }
@@ -469,9 +539,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
-                      color: THelperFunctions.isDarkMode(context)
-                          ? TColors.white
-                          : TColors.textprimary,
+                      color: dark ? TColors.white : TColors.textprimary,
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -480,7 +548,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
                     style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w400,
-                      color: THelperFunctions.isDarkMode(context)
+                      color: dark
                           ? TColors.white.withOpacity(0.7)
                           : TColors.textprimary.withOpacity(0.7),
                     ),
@@ -502,136 +570,156 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
             MediaQuery.of(context).platformBrightness == Brightness.dark);
 
     return Drawer(
-      backgroundColor: dark ? TColors.darkContainer : TColors.lightContainer,
+      backgroundColor: dark
+          ? Colors.black.withOpacity(0.8)
+          : Colors.white.withOpacity(0.8),
       width: MediaQuery.of(context).size.width * 0.65,
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: [
-          DrawerHeader(
-            decoration: BoxDecoration(
-              color: dark ? TColors.dark : TColors.primary.withOpacity(0.1),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                    color: TColors.primary,
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: const Text(
-                    'MBB Agrotech',
-                    style: TextStyle(
-                      color: TColors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
+      child: ClipRRect(
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: [
+              DrawerHeader(
+                decoration: BoxDecoration(
+                  color: dark ? TColors.dark : TColors.primary.withOpacity(0.1),
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  'Growing Smart, Feeding the Future',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w500,
-                    fontSize: 16,
-                    color: dark ? TColors.white : TColors.textprimary,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                TextButton.icon(
-                  onPressed: _isAuthenticated ? _signOut : _showSignInDialog,
-                  icon: Icon(
-                    _isAuthenticated ? Iconsax.logout : Iconsax.login,
-                    color: dark ? TColors.white : TColors.textprimary,
-                    size: 20,
-                  ),
-                  label: Text(
-                    _isAuthenticated ? 'Logout' : 'Sign In',
-                    style: TextStyle(
-                      color: dark ? TColors.white : TColors.textprimary,
-                      fontSize: 14,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: TColors.primary,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: const Text(
+                        'MBB Agrotech',
+                        style: TextStyle(
+                          color: TColors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          // Updated About Us to use index-based navigation
-          ListTile(
-            leading: Icon(Iconsax.info_circle, color: TColors.primary),
-            title: const Text('About Us'),
-            onTap: () {
-              Navigator.pop(context);
-              setState(() => _currentIndex = 5);
-            },
-          ),
-          ..._dropdownItems.entries
-              .where(
-                (entry) =>
-                    _isAuthenticated ||
-                    (entry.key != 'Cart' &&
-                        entry.key != 'Account' &&
-                        entry.key != 'Admin'),
-              )
-              .where((entry) => entry.key != 'Admin' || _isAdmin == true)
-              .map((entry) {
-                return ExpansionTile(
-                  title: Text(
-                    entry.key,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: dark ? TColors.white : TColors.textprimary,
+                    const SizedBox(height: 8),
+                    Text(
+                      'Growing Smart, Feeding the Future',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w500,
+                        fontSize: 16,
+                        color: dark ? TColors.white : TColors.textprimary,
+                      ),
                     ),
-                  ),
-                  children: entry.value.map((item) {
-                    return ListTile(
-                      leading: Icon(
-                        item['icon'],
-                        color: item['color'],
+                    const SizedBox(height: 8),
+                    TextButton.icon(
+                      onPressed: _isAuthenticated
+                          ? _signOut
+                          : _showSignInDialog,
+                      icon: Icon(
+                        _isAuthenticated ? Iconsax.logout : Iconsax.login,
+                        color: dark ? TColors.white : TColors.textprimary,
                         size: 20,
                       ),
+                      label: Text(
+                        _isAuthenticated ? 'Logout' : 'Sign In',
+                        style: TextStyle(
+                          color: dark ? TColors.white : TColors.textprimary,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              ListTile(
+                leading: Icon(Iconsax.info_circle, color: TColors.primary),
+                title: const Text('About Us'),
+                onTap: () {
+                  Navigator.pop(context);
+                  setState(() => _currentIndex = 5);
+                },
+              ),
+              ..._dropdownItems.entries
+                  .where(
+                    (entry) =>
+                        _isAuthenticated ||
+                        (entry.key != 'Cart' &&
+                            entry.key != 'Account' &&
+                            entry.key != 'Admin'),
+                  )
+                  .where((entry) => entry.key != 'Admin' || _isAdmin == true)
+                  .map((entry) {
+                    return ExpansionTile(
                       title: Text(
-                        item['title'],
-                        style: const TextStyle(fontSize: 12),
+                        entry.key,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: dark ? TColors.white : TColors.textprimary,
+                        ),
                       ),
-                      subtitle: Text(
-                        item['subtitle'],
-                        style: const TextStyle(fontSize: 10),
-                      ),
-                      onTap: () {
-                        Navigator.pop(context);
-                        if (!_isAuthenticated &&
-                            (item['title'] == 'View Cart' ||
-                                item['title'] == 'Checkout' ||
-                                item['title'] == 'Profile' ||
-                                item['title'] == 'Orders' ||
-                                item['title'] == 'Saved Items' ||
-                                item['title'] == 'Sign Out' ||
-                                item['title'] == 'Admin Panel')) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                'Please sign in to access this page',
-                              ),
+                      children: entry.value.map((item) {
+                        return ListTile(
+                          leading: Icon(
+                            item['icon'],
+                            color: item['color'],
+                            size: 20,
+                          ),
+                          title: Text(
+                            item['title'],
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: dark ? TColors.white : TColors.textprimary,
                             ),
-                          );
-                          return;
-                        }
-                        switch (item['action']) {
-                          case 'navigate':
-                            setState(() => _currentIndex = item['index']);
-                            break;
-                          case 'signout':
-                            _signOut();
-                            break;
-                        }
-                      },
+                          ),
+                          subtitle: Text(
+                            item['subtitle'],
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: dark
+                                  ? TColors.white.withOpacity(0.7)
+                                  : TColors.textprimary.withOpacity(0.7),
+                            ),
+                          ),
+                          onTap: () {
+                            Navigator.pop(context);
+                            if (!_isAuthenticated &&
+                                (item['title'] == 'View Cart' ||
+                                    item['title'] == 'Checkout' ||
+                                    item['title'] == 'Profile' ||
+                                    item['title'] == 'Orders' ||
+                                    item['title'] == 'Saved Items' ||
+                                    item['title'] == 'Sign Out' ||
+                                    item['title'] == 'Admin Panel')) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: const Text(
+                                    'Please sign in to access this page',
+                                  ),
+                                  behavior: SnackBarBehavior.floating,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                              );
+                              return;
+                            }
+                            switch (item['action']) {
+                              case 'navigate':
+                                setState(() => _currentIndex = item['index']);
+                                break;
+                              case 'signout':
+                                _signOut();
+                                break;
+                            }
+                          },
+                        );
+                      }).toList(),
                     );
-                  }).toList(),
-                );
-              }),
-        ],
+                  }),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -664,60 +752,77 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
             endDrawer: isMobile ? _buildMobileDrawer() : null,
             body: _pages[_currentIndex],
             bottomNavigationBar: isMobile
-                ? BottomNavigationBar(
-                    currentIndex: _currentIndex,
-                    onTap: (index) {
-                      if ((index == 2 || index == 3 || index == 4) &&
-                          !_isAuthenticated) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Please sign in to access this page'),
+                ? ClipRRect(
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(20),
+                      topRight: Radius.circular(20),
+                    ),
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                      child: BottomNavigationBar(
+                        currentIndex: _currentIndex,
+                        onTap: (index) {
+                          if ((index == 2 || index == 3 || index == 4) &&
+                              !_isAuthenticated) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: const Text(
+                                  'Please sign in to access this page',
+                                ),
+                                behavior: SnackBarBehavior.floating,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                            );
+                            return;
+                          }
+                          if (index == 4 && _isAdmin != true) {
+                            return;
+                          }
+                          setState(() {
+                            _currentIndex = index;
+                          });
+                        },
+                        selectedItemColor: TColors.primary,
+                        unselectedItemColor: dark
+                            ? TColors.white
+                            : TColors.textprimary,
+                        backgroundColor: dark
+                            ? Colors.black.withOpacity(0.6)
+                            : Colors.white.withOpacity(0.8),
+                        type: BottomNavigationBarType.fixed,
+                        items: [
+                          const BottomNavigationBarItem(
+                            icon: Icon(Iconsax.home),
+                            label: 'Home',
                           ),
-                        );
-                        return;
-                      }
-                      if (index == 4 && _isAdmin != true) {
-                        return;
-                      }
-                      setState(() {
-                        _currentIndex = index;
-                      });
-                    },
-                    selectedItemColor: TColors.primary,
-                    unselectedItemColor: dark
-                        ? TColors.white
-                        : TColors.textprimary,
-                    backgroundColor: dark ? TColors.dark : TColors.light,
-                    type: BottomNavigationBarType.fixed,
-                    items: [
-                      const BottomNavigationBarItem(
-                        icon: Icon(Iconsax.home),
-                        label: 'Home',
+                          const BottomNavigationBarItem(
+                            icon: Icon(Iconsax.shop),
+                            label: 'Products',
+                          ),
+                          if (_isAuthenticated)
+                            const BottomNavigationBarItem(
+                              icon: Icon(Iconsax.shopping_cart),
+                              label: 'Cart',
+                            ),
+                          if (_isAuthenticated)
+                            const BottomNavigationBarItem(
+                              icon: Icon(Iconsax.profile_circle),
+                              label: 'Account',
+                            ),
+                          if (_isAuthenticated && _isAdmin == true)
+                            const BottomNavigationBarItem(
+                              icon: Icon(Iconsax.setting_2),
+                              label: 'Admin',
+                            ),
+                          const BottomNavigationBarItem(
+                            icon: Icon(Iconsax.info_circle),
+                            label: 'About Us',
+                          ),
+                        ],
                       ),
-                      const BottomNavigationBarItem(
-                        icon: Icon(Iconsax.shop),
-                        label: 'Products',
-                      ),
-                      if (_isAuthenticated)
-                        const BottomNavigationBarItem(
-                          icon: Icon(Iconsax.shopping_cart),
-                          label: 'Cart',
-                        ),
-                      if (_isAuthenticated)
-                        const BottomNavigationBarItem(
-                          icon: Icon(Iconsax.profile_circle),
-                          label: 'Account',
-                        ),
-                      if (_isAuthenticated && _isAdmin == true)
-                        const BottomNavigationBarItem(
-                          icon: Icon(Iconsax.setting_2),
-                          label: 'Admin',
-                        ),
-                      const BottomNavigationBarItem(
-                        icon: Icon(Iconsax.info_circle),
-                        label: 'About Us',
-                      ),
-                    ],
+                    ),
                   )
                 : null,
             floatingActionButton: FloatingActionButton(
@@ -738,7 +843,9 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
             MediaQuery.of(context).platformBrightness == Brightness.dark);
 
     return AppBar(
-      backgroundColor: dark ? TColors.dark : TColors.light,
+      backgroundColor: dark
+          ? Colors.black.withOpacity(0.6)
+          : Colors.white.withOpacity(0.8),
       elevation: 0,
       scrolledUnderElevation: 0,
       toolbarHeight: 80,
@@ -757,7 +864,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
         if (_isAuthenticated) _buildNavItemWithDropdown('Account', 3),
         if (_isAuthenticated && _isAdmin == true)
           _buildNavItemWithDropdown('Admin', 4),
-        _buildNavItemWithDropdown('About Us', 5), // Updated to use dropdown
+        _buildNavItemWithDropdown('About Us', 5),
         const SizedBox(width: 16),
         TextButton.icon(
           onPressed: _isAuthenticated ? _signOut : _showSignInDialog,
@@ -788,7 +895,9 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
             MediaQuery.of(context).platformBrightness == Brightness.dark);
 
     return AppBar(
-      backgroundColor: dark ? TColors.dark : TColors.light,
+      backgroundColor: dark
+          ? Colors.black.withOpacity(0.6)
+          : Colors.white.withOpacity(0.8),
       elevation: 0,
       automaticallyImplyLeading: false,
       scrolledUnderElevation: 0,
@@ -809,13 +918,12 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
         if (_isAuthenticated) _buildNavItemWithDropdown('Account', 3),
         if (_isAuthenticated && _isAdmin == true)
           _buildNavItemWithDropdown('Admin', 4),
-        _buildNavItemWithDropdown('About Us', 5), // Updated to use dropdown
+        _buildNavItemWithDropdown('About Us', 5),
         const SizedBox(width: 16),
         TextButton.icon(
           onPressed: _isAuthenticated ? _signOut : _showSignInDialog,
           icon: Icon(
             _isAuthenticated ? Iconsax.logout : Iconsax.login,
-
             color: dark ? TColors.white : TColors.textprimary,
             size: 20,
           ),
@@ -940,8 +1048,12 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
         onTap: () {
           if ((index == 2 || index == 3 || index == 4) && !_isAuthenticated) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Please sign in to access this page'),
+              SnackBar(
+                content: const Text('Please sign in to access this page'),
+                behavior: SnackBarBehavior.floating,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
             );
             return;
@@ -982,7 +1094,9 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
             MediaQuery.of(context).platformBrightness == Brightness.dark);
 
     return AppBar(
-      backgroundColor: dark ? TColors.dark : TColors.light,
+      backgroundColor: dark
+          ? Colors.black.withOpacity(0.6)
+          : Colors.white.withOpacity(0.8),
       elevation: 0,
       automaticallyImplyLeading: false,
       scrolledUnderElevation: 0,
@@ -1002,7 +1116,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
             color: dark ? TColors.white : TColors.textprimary,
           ),
           onPressed: () {
-            setState(() => _currentIndex = 5); // Navigate to About Us
+            setState(() => _currentIndex = 5);
           },
         ),
         Builder(

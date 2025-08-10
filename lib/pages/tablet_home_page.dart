@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:carousel_slider/carousel_slider.dart';
+import 'package:animated_text_kit/animated_text_kit.dart';
 import '../utils/constants/colors.dart';
 import '../widgets/footer.dart';
 import 'product_detail_screen.dart';
+import 'dart:async';
+import 'dart:math';
 
 class TabletHomePage extends StatefulWidget {
   const TabletHomePage({super.key});
@@ -16,39 +19,86 @@ class TabletHomePage extends StatefulWidget {
 }
 
 class _TabletHomePageState extends State<TabletHomePage> {
-  final List<Map<String, String>> _carouselItems = [
-    {
-      'image': 'assets/images/dress.jpg',
-      'title': 'Elegant Dresses',
-      'description':
-          'Explore our stunning collection of casual, office, and evening dresses',
-    },
-    {
-      'image': 'assets/images/blouses.jpg',
-      'title': 'Chic Tops & Blouses',
-      'description':
-          'Discover trendy formal tops, peplum, and Ankara print blouses',
-    },
-    {
-      'image': 'assets/images/accessories.jpg',
-      'title': 'Fashion Accessories',
-      'description':
-          'Complete your look with jewelry, handbags, and stylish scarves',
-    },
+  // Constants
+  static const _backgroundChangeDuration = Duration(seconds: 5);
+  static const _maxContentWidth = 800.0;
+  static const _sectionPadding = EdgeInsets.symmetric(
+    vertical: 40,
+    horizontal: 32,
+  );
+
+  // State variables
+  final List<String> _backgroundImages = [
+    'assets/images/hydroponic_farm.jpg',
+    'assets/images/greenhouse.jpg',
+    'assets/images/farm_monitoring.jpg',
+    'assets/images/smart_farming.jpg',
   ];
+  int _currentBackgroundIndex = 0;
+  late Timer _backgroundTimer;
 
   List<Map<String, dynamic>> _popularProducts = [];
   List<Map<String, dynamic>> _featuredProducts = [];
-  bool dark = false;
+  bool _darkMode = false;
   bool _isLoadingPopular = true;
   bool _isLoadingFeatured = true;
   final SupabaseClient _supabase = Supabase.instance.client;
 
+  // Data
+  final List<Map<String, dynamic>> _offerings = [
+    {
+      'image': 'assets/images/hydroponic_system.jpg',
+      'title': 'Hydroponic Systems',
+      'description':
+          'Soil-less farming for high-yield crops in limited spaces.',
+      'icon': Icons.water_drop_outlined,
+    },
+    {
+      'image': 'assets/images/greenhouse.jpg',
+      'title': 'Greenhouse Solutions',
+      'description': 'Climate-controlled farming for year-round production.',
+      'icon': Icons.grass_outlined,
+    },
+    {
+      'image': 'assets/images/farm_monitoring.jpg',
+      'title': 'Smart Monitoring',
+      'description': 'Real-time farm analytics with IoT sensors.',
+      'icon': Icons.monitor_heart_outlined,
+    },
+  ];
+
+  final List<Map<String, dynamic>> _testimonials = [
+    {
+      'name': 'Chidi Okeke',
+      'location': 'Lagos, Nigeria',
+      'quote': 'MBB Agrotech doubled our yield with their hydroponic system!',
+      'image': 'assets/images/testimonial1.jpg',
+    },
+    {
+      'name': 'Aisha Bello',
+      'location': 'Abuja, Nigeria',
+      'quote': 'Their training transformed our farm with smart tech.',
+      'image': 'assets/images/testimonial2.jpg',
+    },
+  ];
+
   @override
   void initState() {
     super.initState();
+    _backgroundTimer = Timer.periodic(_backgroundChangeDuration, (timer) {
+      setState(() {
+        _currentBackgroundIndex =
+            (_currentBackgroundIndex + 1) % _backgroundImages.length;
+      });
+    });
     _fetchPopularProducts();
     _fetchFeaturedProducts();
+  }
+
+  @override
+  void dispose() {
+    _backgroundTimer.cancel();
+    super.dispose();
   }
 
   Future<void> _fetchPopularProducts() async {
@@ -61,35 +111,16 @@ class _TabletHomePageState extends State<TabletHomePage> {
           .eq('is_popular', true);
 
       setState(() {
-        _popularProducts = response.map((product) {
-          String imageUrl = product['image1'] as String? ?? '';
-          return {
-            'id': product['id'],
-            'image1': imageUrl,
-            'image2': product['image2'] as String? ?? '',
-            'image3': product['image3'] as String? ?? '',
-            'name': product['name'] as String? ?? 'Unnamed Product',
-            'price': product['price'] is num
-                ? (product['price'] as num).toStringAsFixed(0)
-                : product['price']?.toString() ?? '0',
-            'rate': product['rating']?.toInt() ?? 0,
-            'stock': product['stock']?.toString() ?? 'N/A',
-            'description':
-                product['description'] as String? ?? 'No description available',
-          };
-        }).toList();
+        _popularProducts =
+            response.map((product) => _parseProductData(product)).toList()
+              ..shuffle(Random());
         _isLoadingPopular = false;
       });
     } catch (e) {
       setState(() {
         _isLoadingPopular = false;
       });
-      debugPrint('Error fetching popular products: $e');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error fetching popular products: $e')),
-        );
-      }
+      _showErrorSnackbar('Error fetching popular products: $e');
     }
   }
 
@@ -103,42 +134,49 @@ class _TabletHomePageState extends State<TabletHomePage> {
           .eq('is_featured', true);
 
       setState(() {
-        _featuredProducts = response.map((product) {
-          String imageUrl = product['image1'] as String? ?? '';
-          return {
-            'id': product['id'],
-            'image1': imageUrl,
-            'image2': product['image2'] as String? ?? '',
-            'image3': product['image3'] as String? ?? '',
-            'name': product['name'] as String? ?? 'Unnamed Product',
-            'price': product['price'] is num
-                ? (product['price'] as num).toStringAsFixed(0)
-                : product['price']?.toString() ?? '0',
-            'rate': product['rating']?.toInt() ?? 0,
-            'stock': product['stock']?.toString() ?? 'N/A',
-            'description':
-                product['description'] as String? ?? 'No description available',
-          };
-        }).toList();
+        _featuredProducts =
+            response.map((product) => _parseProductData(product)).toList()
+              ..shuffle(Random());
         _isLoadingFeatured = false;
       });
     } catch (e) {
       setState(() {
         _isLoadingFeatured = false;
       });
-      debugPrint('Error fetching featured products: $e');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error fetching featured products: $e')),
-        );
-      }
+      _showErrorSnackbar('Error fetching featured products: $e');
     }
+  }
+
+  Map<String, dynamic> _parseProductData(Map<String, dynamic> product) {
+    return {
+      'id': product['id'],
+      'image1': product['image1'] as String? ?? '',
+      'image2': product['image2'] as String? ?? '',
+      'image3': product['image3'] as String? ?? '',
+      'name': product['name'] as String? ?? 'Unnamed Product',
+      'price': product['price'] is num
+          ? (product['price'] as num).toStringAsFixed(0)
+          : product['price']?.toString() ?? '0',
+      'rate': product['rating']?.toInt() ?? 0,
+      'stock': product['stock']?.toString() ?? 'N/A',
+      'description':
+          product['description'] as String? ?? 'No description available',
+    };
+  }
+
+  void _showErrorSnackbar(String message) {
+    if (mounted) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message)));
+    }
+    debugPrint(message);
   }
 
   TextStyle _headlineLarge(BuildContext context) {
     return GoogleFonts.poppins(
-      fontSize: 28,
-      fontWeight: FontWeight.w700,
+      fontSize: 36,
+      fontWeight: FontWeight.w800,
       color: TColors.white,
       height: 1.2,
     );
@@ -146,25 +184,26 @@ class _TabletHomePageState extends State<TabletHomePage> {
 
   TextStyle _headlineMedium(BuildContext context) {
     return GoogleFonts.poppins(
-      fontSize: 24,
-      fontWeight: FontWeight.w600,
+      fontSize: 28,
+      fontWeight: FontWeight.w700,
       color: Theme.of(context).textTheme.headlineMedium?.color,
       height: 1.3,
     );
   }
 
   TextStyle _bodyLarge(BuildContext context) {
-    return GoogleFonts.openSans(
-      fontSize: 14,
+    return GoogleFonts.inter(
+      fontSize: 16,
       color: TColors.white.withOpacity(0.9),
       height: 1.5,
+      fontWeight: FontWeight.w400,
     );
   }
 
   TextStyle _bodyMedium(BuildContext context) {
-    return GoogleFonts.openSans(
-      fontSize: 12,
-      color: TColors.textsecondary,
+    return GoogleFonts.inter(
+      fontSize: 14,
+      color: _darkMode ? TColors.lightgrey : TColors.darkGrey,
       height: 1.5,
     );
   }
@@ -182,7 +221,7 @@ class _TabletHomePageState extends State<TabletHomePage> {
       itemCount: 4,
       itemBuilder: (context, index) {
         return Shimmer.fromColors(
-          baseColor: dark ? TColors.darkGrey : TColors.softgrey,
+          baseColor: _darkMode ? TColors.darkGrey : TColors.softgrey,
           highlightColor: TColors.grey,
           child: Card(
             elevation: 0,
@@ -245,30 +284,12 @@ class _TabletHomePageState extends State<TabletHomePage> {
       itemCount: 2,
       itemBuilder: (context, index) {
         return Shimmer.fromColors(
-          baseColor: dark ? TColors.darkGrey : TColors.softgrey,
+          baseColor: _darkMode ? TColors.darkGrey : TColors.softgrey,
           highlightColor: TColors.grey,
           child: Container(
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(width: 150, height: 20, color: Colors.white),
-                      const SizedBox(height: 8),
-                      Container(width: 200, height: 14, color: Colors.white),
-                      Container(width: 180, height: 14, color: Colors.white),
-                    ],
-                  ),
-                ),
-              ],
             ),
           ),
         );
@@ -276,7 +297,7 @@ class _TabletHomePageState extends State<TabletHomePage> {
     );
   }
 
-  void _addToCart(Map<String, dynamic> product) async {
+  Future<void> _addToCart(Map<String, dynamic> product) async {
     final userId = _supabase.auth.currentUser?.id;
     if (userId == null) {
       if (mounted) {
@@ -302,12 +323,7 @@ class _TabletHomePageState extends State<TabletHomePage> {
         ).showSnackBar(const SnackBar(content: Text('Added to cart')));
       }
     } catch (e) {
-      debugPrint('Error adding to cart: $e');
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error adding to cart: $e')));
-      }
+      _showErrorSnackbar('Error adding to cart: $e');
     }
   }
 
@@ -320,35 +336,33 @@ class _TabletHomePageState extends State<TabletHomePage> {
             loadingBuilder: (context, child, loadingProgress) {
               if (loadingProgress == null) return child;
               return Shimmer.fromColors(
-                baseColor: dark ? TColors.darkGrey : TColors.softgrey,
+                baseColor: _darkMode ? TColors.darkGrey : TColors.softgrey,
                 highlightColor: TColors.grey,
                 child: Container(color: Colors.white),
               );
             },
-            errorBuilder: (context, error, stackTrace) => Container(
-              color: Colors.grey[200],
-              child: const Icon(
-                Icons.image_not_supported,
-                size: 50,
-                color: TColors.grey,
-              ),
-            ),
+            errorBuilder: (context, error, stackTrace) =>
+                _buildPlaceholderImage(),
           )
-        : Container(
-            color: Colors.grey[200],
-            child: const Icon(
-              Icons.image_not_supported,
-              size: 50,
-              color: TColors.grey,
-            ),
-          );
+        : _buildPlaceholderImage();
+  }
+
+  Widget _buildPlaceholderImage() {
+    return Container(
+      color: Colors.grey[200],
+      child: const Icon(
+        Icons.image_not_supported,
+        size: 50,
+        color: TColors.grey,
+      ),
+    );
   }
 
   Widget _buildPopularProductCard(Map<String, dynamic> product) {
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      color: dark ? TColors.darkContainer : TColors.lightContainer,
+      color: _darkMode ? TColors.darkContainer : TColors.lightContainer,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -370,7 +384,7 @@ class _TabletHomePageState extends State<TabletHomePage> {
                   style: GoogleFonts.poppins(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: dark ? TColors.white : TColors.black,
+                    color: _darkMode ? TColors.white : TColors.black,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -396,7 +410,7 @@ class _TabletHomePageState extends State<TabletHomePage> {
                           style: GoogleFonts.poppins(
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
-                            color: dark ? TColors.white : TColors.black,
+                            color: _darkMode ? TColors.white : TColors.black,
                           ),
                         ),
                       ],
@@ -407,8 +421,6 @@ class _TabletHomePageState extends State<TabletHomePage> {
                 Text(
                   'Stock: ${product['stock']}',
                   style: GoogleFonts.poppins(fontSize: 12, color: TColors.grey),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 8),
                 SizedBox(
@@ -450,59 +462,202 @@ class _TabletHomePageState extends State<TabletHomePage> {
 
   Widget _buildFeaturedProductCard(Map<String, dynamic> product) {
     final imageUrl = product['image1'] ?? '';
-    return Container(
-      decoration: BoxDecoration(
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: InkWell(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ProductDetailsScreen(product: product),
+            ),
+          );
+        },
         borderRadius: BorderRadius.circular(16),
-        image: imageUrl.isNotEmpty
-            ? DecorationImage(
-                image: NetworkImage(imageUrl),
-                fit: BoxFit.cover,
-                onError: (exception, stackTrace) =>
-                    Container(color: Colors.grey[200]),
-              )
-            : null,
-        color: imageUrl.isEmpty ? Colors.grey[200] : null,
-      ),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          gradient: LinearGradient(
-            begin: Alignment.bottomCenter,
-            end: Alignment.topCenter,
-            colors: [
-              Colors.black.withOpacity(0.8),
-              Colors.black.withOpacity(0.3),
-            ],
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            image: imageUrl.isNotEmpty
+                ? DecorationImage(
+                    image: NetworkImage(imageUrl),
+                    fit: BoxFit.cover,
+                    onError: (exception, stackTrace) =>
+                        Container(color: Colors.grey[200]),
+                  )
+                : null,
+            color: imageUrl.isEmpty ? Colors.grey[200] : null,
           ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(12),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              gradient: LinearGradient(
+                begin: Alignment.bottomCenter,
+                end: Alignment.topCenter,
+                colors: [
+                  Colors.black.withOpacity(0.8),
+                  Colors.black.withOpacity(0.2),
+                ],
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   Text(
                     product['name'],
                     style: GoogleFonts.poppins(
-                      fontSize: 16,
+                      fontSize: 18,
                       fontWeight: FontWeight.w600,
                       color: TColors.white,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 8),
                   Text(
                     product['description'],
-                    style: GoogleFonts.openSans(
+                    style: GoogleFonts.inter(
                       fontSize: 12,
                       color: TColors.white.withOpacity(0.9),
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 12),
+                  ElevatedButton(
+                    onPressed: () => _addToCart(product),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: TColors.primary,
+                      foregroundColor: TColors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: const Text('Learn More'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildOfferingCard(Map<String, dynamic> offering) {
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(
+          color: _darkMode ? Colors.grey[800]! : Colors.grey[200]!,
+          width: 1,
+        ),
+      ),
+      color: _darkMode ? TColors.darkContainer : TColors.lightContainer,
+      child: InkWell(
+        onTap: () {},
+        borderRadius: BorderRadius.circular(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(16),
+              ),
+              child: Container(
+                height: 150,
+                color: Colors.grey[200],
+                child: Stack(
+                  children: [
+                    if (offering['image'] != null)
+                      Image.asset(
+                        offering['image'],
+                        height: 150,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      ),
+                    Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.bottomCenter,
+                          end: Alignment.topCenter,
+                          colors: [
+                            Colors.black.withOpacity(0.3),
+                            Colors.transparent,
+                          ],
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      top: 12,
+                      right: 12,
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: TColors.primary,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          offering['icon'],
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    offering['title'],
+                    style: GoogleFonts.poppins(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: _darkMode ? TColors.white : TColors.black,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    offering['description'],
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w400,
+                      color: _darkMode ? TColors.lightgrey : TColors.darkGrey,
+                    ),
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 12),
+                  InkWell(
+                    onTap: () {},
+                    child: Row(
+                      children: [
+                        Text(
+                          'Learn more',
+                          style: GoogleFonts.inter(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: TColors.primary,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Icon(
+                          Icons.arrow_forward,
+                          size: 14,
+                          color: TColors.primary,
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -513,406 +668,442 @@ class _TabletHomePageState extends State<TabletHomePage> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    dark = Theme.of(context).brightness == Brightness.dark;
-
-    return CustomScrollView(
-      slivers: [
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 32.0),
-            child: Container(
-              height: MediaQuery.of(context).size.height * 0.35,
-              margin: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(24),
-                color: Colors.grey[500],
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 8,
-                    offset: const Offset(0, 4),
+  Widget _buildTestimonialCard(Map<String, dynamic> testimonial) {
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      color: _darkMode ? TColors.darkContainer : TColors.lightContainer,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                if (testimonial['image'] != null)
+                  ClipOval(
+                    child: Image.asset(
+                      testimonial['image'],
+                      width: 40,
+                      height: 40,
+                      fit: BoxFit.cover,
+                    ),
                   ),
+                const SizedBox(width: 12),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      testimonial['name'],
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: _darkMode ? TColors.white : TColors.black,
+                      ),
+                    ),
+                    Text(
+                      testimonial['location'],
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        color: _darkMode ? TColors.lightgrey : TColors.darkGrey,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text(
+              testimonial['quote'],
+              style: GoogleFonts.inter(
+                fontSize: 12,
+                fontWeight: FontWeight.w400,
+                color: _darkMode ? TColors.white : TColors.black,
+                height: 1.5,
+              ),
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCtaButton(String label, VoidCallback onPressed) {
+    return ElevatedButton(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: TColors.primary,
+        foregroundColor: TColors.white,
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        elevation: 2,
+      ),
+      child: Text(
+        label,
+        style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w600),
+      ),
+    );
+  }
+
+  Widget _buildHeroSection() {
+    return SizedBox(
+      height: MediaQuery.of(context).size.height * 0.5,
+      child: Stack(
+        children: [
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 1000),
+            transitionBuilder: (child, animation) {
+              return FadeTransition(opacity: animation, child: child);
+            },
+            child: Container(
+              key: ValueKey<int>(_currentBackgroundIndex),
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage(_backgroundImages[_currentBackgroundIndex]),
+                  fit: BoxFit.cover,
+                  colorFilter: ColorFilter.mode(
+                    Colors.black.withOpacity(0.6),
+                    BlendMode.darken,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.black.withOpacity(0.6),
+                    Colors.black.withOpacity(0.2),
+                  ],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                ),
+              ),
+            ),
+          ),
+          Center(
+            child: Container(
+              constraints: const BoxConstraints(maxWidth: _maxContentWidth),
+              padding: const EdgeInsets.symmetric(horizontal: 32),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: TColors.primary.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Text(
+                      'MBB Agrotech',
+                      style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: TColors.white,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Smart Farming\nSolutions',
+                    style: _headlineLarge(context),
+                  ),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: 400,
+                    child: Text(
+                      'Revolutionizing agriculture with innovative technology for Nigerian farmers.',
+                      style: _bodyLarge(context),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  _buildCtaButton('Explore Now', () {}),
                 ],
               ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(24),
-                child: CarouselSlider(
-                  options: CarouselOptions(
-                    height: double.infinity,
-                    autoPlay: true,
-                    enlargeCenterPage: true,
-                    aspectRatio: 16 / 9,
-                    autoPlayInterval: const Duration(seconds: 5),
-                    viewportFraction: 1.0,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSolutionsSection() {
+    return Container(
+      color: _darkMode ? TColors.dark : TColors.light,
+      padding: _sectionPadding,
+      child: Center(
+        child: SizedBox(
+          width: _maxContentWidth,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Our Solutions',
+                style: _headlineMedium(
+                  context,
+                ).copyWith(color: _darkMode ? TColors.white : TColors.black),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'Innovative tools to enhance your farming productivity.',
+                style: GoogleFonts.inter(
+                  fontSize: 14,
+                  color: _darkMode ? TColors.lightgrey : TColors.darkGrey,
+                ),
+              ),
+              const SizedBox(height: 24),
+              GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 16,
+                  childAspectRatio: 0.8,
+                ),
+                itemCount: _offerings.length,
+                itemBuilder: (context, index) {
+                  return _buildOfferingCard(_offerings[index]);
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPopularProductsSection() {
+    return Container(
+      color: _darkMode ? TColors.dark : TColors.light,
+      padding: _sectionPadding,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Popular Products',
+            style: _headlineMedium(
+              context,
+            ).copyWith(color: _darkMode ? TColors.white : TColors.black),
+          ),
+          const SizedBox(height: 16),
+          _isLoadingPopular
+              ? _buildShimmerEffect()
+              : _popularProducts.isEmpty
+              ? _buildEmptyState(
+                  icon: Icons.production_quantity_limits,
+                  message: 'No popular products found',
+                )
+              : GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 16,
+                    mainAxisSpacing: 16,
+                    childAspectRatio: 0.65,
                   ),
-                  items: _carouselItems.map((item) {
-                    return Builder(
-                      builder: (BuildContext context) {
-                        return Container(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              colors: [
-                                dark
-                                    ? TColors.dark.withOpacity(0.9)
-                                    : TColors.light.withOpacity(0.9),
-                                dark
-                                    ? TColors.darkGrey.withOpacity(0.7)
-                                    : TColors.lightgrey.withOpacity(0.7),
-                              ],
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: dark
-                                    ? Colors.black.withOpacity(0.3)
-                                    : Colors.grey.withOpacity(0.3),
-                                blurRadius: 8,
-                                spreadRadius: 2,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                flex: 2,
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(12),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      border: Border.all(
-                                        color: TColors.primary.withOpacity(0.5),
-                                        width: 1.5,
-                                      ),
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: Image.asset(
-                                      item['image']!,
-                                      fit: BoxFit.cover,
-                                      height: double.infinity,
-                                      width: double.infinity,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Expanded(
-                                flex: 3,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(16),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        item['title']!,
-                                        style: _headlineLarge(context).copyWith(
-                                          fontSize: 24,
-                                          color: dark
-                                              ? TColors.white
-                                              : TColors.black,
-                                          shadows: [
-                                            Shadow(
-                                              color: dark
-                                                  ? Colors.black.withOpacity(
-                                                      0.5,
-                                                    )
-                                                  : Colors.white.withOpacity(
-                                                      0.5,
-                                                    ),
-                                              blurRadius: 8,
-                                              offset: const Offset(2, 2),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      const SizedBox(height: 8),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 8,
-                                          vertical: 4,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: TColors.primary.withOpacity(
-                                            0.2,
-                                          ),
-                                          borderRadius: BorderRadius.circular(
-                                            6,
-                                          ),
-                                        ),
-                                        child: Text(
-                                          'New Collection',
-                                          style: _bodyMedium(context).copyWith(
-                                            color: TColors.primary,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(height: 12),
-                                      Text(
-                                        item['description']!,
-                                        style: _bodyLarge(context).copyWith(
-                                          fontSize: 12,
-                                          color: dark
-                                              ? TColors.white.withOpacity(0.9)
-                                              : TColors.black.withOpacity(0.9),
-                                        ),
-                                      ),
-                                      const SizedBox(height: 16),
-                                      ElevatedButton(
-                                        onPressed: () {},
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: TColors.primary,
-                                          foregroundColor: TColors.white,
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 20,
-                                            vertical: 12,
-                                          ),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              10,
-                                            ),
-                                          ),
-                                          elevation: 0,
-                                          shadowColor: TColors.primary
-                                              .withOpacity(0.5),
-                                        ),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Text(
-                                              'Shop Now',
-                                              style: GoogleFonts.poppins(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                            ),
-                                            const SizedBox(width: 8),
-                                            const Icon(
-                                              Iconsax.arrow_right_3,
-                                              size: 18,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
+                  itemCount: _popularProducts.length.clamp(0, 4),
+                  itemBuilder: (context, index) {
+                    final product = _popularProducts[index];
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                ProductDetailsScreen(product: product),
                           ),
                         );
                       },
+                      child: _buildPopularProductCard(product),
                     );
-                  }).toList(),
+                  },
+                ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFeaturedServicesSection() {
+    return Container(
+      color: _darkMode ? TColors.dark : TColors.light,
+      padding: _sectionPadding,
+      child: Center(
+        child: SizedBox(
+          width: _maxContentWidth,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Featured Services',
+                style: _headlineMedium(
+                  context,
+                ).copyWith(color: _darkMode ? TColors.white : TColors.black),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'Specialized services for modern agriculture.',
+                style: GoogleFonts.inter(
+                  fontSize: 14,
+                  color: _darkMode ? TColors.lightgrey : TColors.darkGrey,
                 ),
               ),
-            ),
+              const SizedBox(height: 24),
+              _isLoadingFeatured
+                  ? _buildFeaturedShimmerEffect()
+                  : _featuredProducts.isEmpty
+                  ? _buildEmptyState(
+                      icon: Icons.star_border,
+                      message: 'No featured services found',
+                    )
+                  : GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            childAspectRatio: 1.5,
+                            crossAxisSpacing: 16,
+                            mainAxisSpacing: 16,
+                          ),
+                      itemCount: _featuredProducts.length.clamp(0, 4),
+                      itemBuilder: (context, index) {
+                        final product = _featuredProducts[index];
+                        return _buildFeaturedProductCard(product);
+                      },
+                    ),
+            ],
           ),
         ),
-        SliverToBoxAdapter(
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 40),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Popular Products',
-                  style: _headlineMedium(
-                    context,
-                  ).copyWith(color: dark ? TColors.white : TColors.black),
+      ),
+    );
+  }
+
+  Widget _buildTestimonialsSection() {
+    return Container(
+      color: _darkMode ? TColors.dark : TColors.light,
+      padding: _sectionPadding,
+      child: Center(
+        child: SizedBox(
+          width: _maxContentWidth,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'What Our Customers Say',
+                style: _headlineMedium(
+                  context,
+                ).copyWith(color: _darkMode ? TColors.white : TColors.black),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'Hear from farmers who trust MBB Agrotech.',
+                style: GoogleFonts.inter(
+                  fontSize: 14,
+                  color: _darkMode ? TColors.lightgrey : TColors.darkGrey,
                 ),
-                const SizedBox(height: 16),
-                _isLoadingPopular
-                    ? _buildShimmerEffect()
-                    : _popularProducts.isEmpty
-                    ? Center(
-                        child: Column(
-                          children: [
-                            Icon(
-                              Icons.production_quantity_limits,
-                              size: 40,
-                              color: dark
-                                  ? TColors.white.withOpacity(0.6)
-                                  : TColors.textsecondary,
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'No popular products found',
-                              style: _bodyMedium(context),
-                            ),
-                          ],
-                        ),
-                      )
-                    : GridView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              crossAxisSpacing: 16,
-                              mainAxisSpacing: 16,
-                              childAspectRatio: 0.65,
-                            ),
-                        itemCount: _popularProducts.length.clamp(0, 4),
-                        itemBuilder: (context, index) {
-                          final product = _popularProducts[index];
-                          return GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      ProductDetailsScreen(product: product),
-                                ),
-                              );
-                            },
-                            child: _buildPopularProductCard(product),
-                          );
-                        },
-                      ),
-              ],
-            ),
+              ),
+              const SizedBox(height: 24),
+              CarouselSlider(
+                options: CarouselOptions(
+                  height: 200,
+                  autoPlay: true,
+                  enlargeCenterPage: true,
+                  aspectRatio: 2.0,
+                  autoPlayInterval: const Duration(seconds: 5),
+                  viewportFraction: 0.5,
+                ),
+                items: _testimonials.map((testimonial) {
+                  return _buildTestimonialCard(testimonial);
+                }).toList(),
+              ),
+            ],
           ),
         ),
-        SliverToBoxAdapter(
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 40),
-            color: dark ? TColors.dark : TColors.light,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Popular Products',
-                  style: _headlineMedium(
-                    context,
-                  ).copyWith(color: dark ? TColors.white : TColors.black),
+      ),
+    );
+  }
+
+  Widget _buildCtaSection() {
+    return Container(
+      padding: _sectionPadding,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            TColors.primary.withOpacity(0.1),
+            TColors.primary.withOpacity(0.3),
+          ],
+        ),
+      ),
+      child: Center(
+        child: SizedBox(
+          width: _maxContentWidth,
+          child: Column(
+            children: [
+              Text(
+                'Book a Free Consultation',
+                style: _headlineMedium(
+                  context,
+                ).copyWith(color: _darkMode ? TColors.white : TColors.black),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Connect with our experts for tailored farming solutions.',
+                style: GoogleFonts.inter(
+                  fontSize: 14,
+                  color: _darkMode ? TColors.lightgrey : TColors.darkGrey,
                 ),
-                const SizedBox(height: 16),
-                _isLoadingFeatured
-                    ? _buildFeaturedShimmerEffect()
-                    : _featuredProducts.isEmpty
-                    ? Center(
-                        child: Column(
-                          children: [
-                            Icon(
-                              Icons.star_border,
-                              size: 40,
-                              color: dark
-                                  ? TColors.white.withOpacity(0.6)
-                                  : TColors.textsecondary,
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'No featured products found',
-                              style: _bodyMedium(context),
-                            ),
-                          ],
-                        ),
-                      )
-                    : GridView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              childAspectRatio: 1.5,
-                              crossAxisSpacing: 16,
-                              mainAxisSpacing: 16,
-                            ),
-                        itemCount: _featuredProducts.length.clamp(0, 4),
-                        itemBuilder: (context, index) {
-                          final product = _featuredProducts[index];
-                          return GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      ProductDetailsScreen(product: product),
-                                ),
-                              );
-                            },
-                            child: _buildFeaturedProductCard(product),
-                          );
-                        },
-                      ),
-              ],
-            ),
+              ),
+              const SizedBox(height: 24),
+              _buildCtaButton('Book Now', () {}),
+            ],
           ),
         ),
-        SliverToBoxAdapter(
-          child: Container(
-            margin: const EdgeInsets.symmetric(horizontal: 32, vertical: 40),
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: TColors.primary.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: TColors.primary, width: 0.5),
-            ),
-            child: Column(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Image.network(
-                    // Replace with valid URL or asset
-                    'https://via.placeholder.com/150',
-                    fit: BoxFit.cover,
-                    height: 150,
-                    width: double.infinity,
-                    errorBuilder: (context, error, stackTrace) => Container(
-                      color: Colors.grey[200],
-                      child: const Icon(Icons.image_not_supported),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  'Special Offer',
-                  style: _headlineMedium(context).copyWith(
-                    fontSize: 22,
-                    color: dark ? TColors.white : TColors.black,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Get 20% off your first purchase! Limited time offer.',
-                  style: _bodyLarge(context).copyWith(
-                    fontSize: 12,
-                    color: dark ? TColors.white : TColors.black,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 12),
-                ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: TColors.primary,
-                    foregroundColor: TColors.white,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 12,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: Text(
-                    'Buy Now',
-                    style: GoogleFonts.poppins(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-              ],
-            ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState({required IconData icon, required String message}) {
+    return Center(
+      child: Column(
+        children: [
+          Icon(
+            icon,
+            size: 40,
+            color: _darkMode
+                ? TColors.white.withOpacity(0.6)
+                : TColors.textsecondary,
           ),
-        ),
+          const SizedBox(height: 8),
+          Text(message, style: _bodyMedium(context)),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    _darkMode = Theme.of(context).brightness == Brightness.dark;
+
+    return CustomScrollView(
+      slivers: [
+        SliverToBoxAdapter(child: _buildHeroSection()),
+        SliverToBoxAdapter(child: _buildSolutionsSection()),
+        SliverToBoxAdapter(child: _buildPopularProductsSection()),
+        SliverToBoxAdapter(child: _buildFeaturedServicesSection()),
+        SliverToBoxAdapter(child: _buildTestimonialsSection()),
+        SliverToBoxAdapter(child: _buildCtaSection()),
         const SliverToBoxAdapter(child: Footer()),
       ],
     );

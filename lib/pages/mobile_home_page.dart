@@ -34,6 +34,47 @@ class _MobileHomePageState extends State<MobileHomePage> {
     },
   ];
 
+  final List<Map<String, dynamic>> _offerings = [
+    {
+      'image': 'assets/images/hydroponic_system.jpg',
+      'title': 'Hydroponic Systems',
+      'description':
+          'Soil-less farming solutions for high-yield crop production in limited spaces.',
+      'icon': Icons.water_drop_outlined,
+    },
+    {
+      'image': 'assets/images/greenhouse.jpg',
+      'title': 'Greenhouse Solutions',
+      'description':
+          'Climate-controlled environments for year-round farming and optimal plant growth.',
+      'icon': Icons.grass_outlined,
+    },
+    {
+      'image': 'assets/images/farm_monitoring.jpg',
+      'title': 'Smart Monitoring',
+      'description':
+          'Real-time tracking of farm conditions with IoT sensors and analytics.',
+      'icon': Icons.monitor_heart_outlined,
+    },
+  ];
+
+  final List<Map<String, dynamic>> _testimonials = [
+    {
+      'name': 'Chidi Okeke',
+      'location': 'Lagos, Nigeria',
+      'quote':
+          'MBB Agrotech\'s hydroponic system doubled our yield in just six months!',
+      'image': 'assets/images/testimonial1.jpg',
+    },
+    {
+      'name': 'Aisha Bello',
+      'location': 'Abuja, Nigeria',
+      'quote':
+          'Their training program transformed our farm operations with smart technology.',
+      'image': 'assets/images/testimonial2.jpg',
+    },
+  ];
+
   List<Map<String, dynamic>> _popularProducts = [];
   List<Map<String, dynamic>> _featuredProducts = [];
   bool dark = false;
@@ -518,217 +559,459 @@ class _MobileHomePageState extends State<MobileHomePage> {
     );
   }
 
+  Widget _buildIndustryChip(String label) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: dark
+            ? TColors.darkContainer.withOpacity(0.4)
+            : TColors.primary.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: dark
+              ? TColors.white.withOpacity(0.3)
+              : TColors.primary.withOpacity(0.4),
+          width: 0.5,
+        ),
+      ),
+      child: Text(
+        label,
+        style: GoogleFonts.poppins(
+          fontSize: 10,
+          fontWeight: FontWeight.w500,
+          color: dark ? TColors.white : TColors.primary,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildOfferingCard(Map<String, dynamic> offering) {
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(
+          color: dark ? Colors.grey[800]! : Colors.grey[200]!,
+          width: 1,
+        ),
+      ),
+      color: dark ? TColors.darkContainer : TColors.lightContainer,
+      child: InkWell(
+        onTap: () {},
+        borderRadius: BorderRadius.circular(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(12),
+              ),
+              child: Container(
+                height: 120,
+                color: Colors.grey[200],
+                child: Stack(
+                  children: [
+                    if (offering['image'] != null)
+                      Image.asset(
+                        offering['image'],
+                        height: 120,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      ),
+                    Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.bottomCenter,
+                          end: Alignment.topCenter,
+                          colors: [
+                            Colors.black.withOpacity(0.3),
+                            Colors.transparent,
+                          ],
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: TColors.primary,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          offering['icon'],
+                          color: Colors.white,
+                          size: 16,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.all(_cardPadding),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    offering['title'],
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: dark ? TColors.white : TColors.black,
+                      height: 1.3,
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    offering['description'],
+                    style: GoogleFonts.inter(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w400,
+                      color: dark ? TColors.lightgrey : TColors.darkGrey,
+                      height: 1.5,
+                    ),
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  SizedBox(height: 12),
+                  InkWell(
+                    onTap: () {},
+                    child: Row(
+                      children: [
+                        Text(
+                          'Learn more',
+                          style: GoogleFonts.inter(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                            color: TColors.primary,
+                          ),
+                        ),
+                        SizedBox(width: 4),
+                        Icon(
+                          Icons.arrow_forward,
+                          size: 12,
+                          color: TColors.primary,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTestimonialCard(Map<String, dynamic> testimonial) {
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      color: dark ? TColors.darkContainer : TColors.lightContainer,
+      child: Padding(
+        padding: EdgeInsets.all(_cardPadding),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                if (testimonial['image'] != null)
+                  ClipOval(
+                    child: Image.asset(
+                      testimonial['image'],
+                      width: 40,
+                      height: 40,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                SizedBox(width: 12),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      testimonial['name'],
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: dark ? TColors.white : TColors.black,
+                      ),
+                    ),
+                    Text(
+                      testimonial['location'],
+                      style: GoogleFonts.inter(
+                        fontSize: 10,
+                        color: dark ? TColors.lightgrey : TColors.darkGrey,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            SizedBox(height: 12),
+            Text(
+              testimonial['quote'],
+              style: GoogleFonts.inter(
+                fontSize: 12,
+                fontWeight: FontWeight.w400,
+                color: dark ? TColors.white : TColors.black,
+                height: 1.5,
+              ),
+              maxLines: 4,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCtaButton(String label, VoidCallback onPressed) {
+    return ElevatedButton(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: TColors.primary,
+        foregroundColor: TColors.white,
+        padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        elevation: 2,
+      ),
+      child: Text(
+        label,
+        style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w600),
+      ),
+    );
+  }
+
+  Widget _buildHeroSection() {
+    return Container(
+      height: MediaQuery.of(context).size.height * 0.7,
+      decoration: BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage(_carouselItems[0]['image']!),
+          fit: BoxFit.cover,
+          colorFilter: ColorFilter.mode(
+            Colors.black.withOpacity(0.6),
+            BlendMode.darken,
+          ),
+        ),
+      ),
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: _screenPadding),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: TColors.primary.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Text(
+                'Welcome to MBB Agrotech',
+                style: GoogleFonts.poppins(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                  color: TColors.white,
+                ),
+              ),
+            ),
+            SizedBox(height: _elementPadding * 2),
+            Text(
+              'Growing Smart,\nFeeding the Future',
+              style: _headlineLarge(context),
+            ),
+            SizedBox(height: _elementPadding * 2),
+            Text(
+              'A forward-thinking agricultural technology company dedicated to revolutionizing farming in Nigeria and beyond.',
+              style: _bodyLarge(context).copyWith(fontSize: 12),
+            ),
+            SizedBox(height: _elementPadding * 2),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                _buildIndustryChip('Smart Farming'),
+                _buildIndustryChip('Hydroponics'),
+                _buildIndustryChip('Agro-Consulting'),
+              ],
+            ),
+            SizedBox(height: _elementPadding * 3),
+            Row(
+              children: [
+                _buildCtaButton('Explore Solutions', () {}),
+                SizedBox(width: 12),
+                OutlinedButton(
+                  onPressed: () {},
+                  style: OutlinedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    side: BorderSide(color: TColors.white, width: 1.5),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: Text(
+                    'Contact Us',
+                    style: GoogleFonts.poppins(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: TColors.white,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSolutionsSection() {
+    return Container(
+      color: dark ? TColors.dark : TColors.light,
+      padding: EdgeInsets.symmetric(
+        vertical: _sectionPadding,
+        horizontal: _screenPadding,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Our Solutions',
+            style: _headlineMedium(
+              context,
+            ).copyWith(color: dark ? TColors.white : TColors.black),
+          ),
+          SizedBox(height: _elementPadding),
+          Text(
+            'Comprehensive solutions to modernize your farming operations.',
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              color: dark ? TColors.lightgrey : TColors.darkGrey,
+            ),
+          ),
+          SizedBox(height: _elementPadding * 2),
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              childAspectRatio: 0.8,
+            ),
+            itemCount: _offerings.length,
+            itemBuilder: (context, index) {
+              return _buildOfferingCard(_offerings[index]);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTestimonialsSection() {
+    return Container(
+      color: dark ? TColors.dark : TColors.light,
+      padding: EdgeInsets.symmetric(
+        vertical: _sectionPadding,
+        horizontal: _screenPadding,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'What Our Customers Say',
+            style: _headlineMedium(
+              context,
+            ).copyWith(color: dark ? TColors.white : TColors.black),
+          ),
+          SizedBox(height: _elementPadding),
+          Text(
+            'Hear from farmers and partners who trust MBB Agrotech.',
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              color: dark ? TColors.lightgrey : TColors.darkGrey,
+            ),
+          ),
+          SizedBox(height: _elementPadding * 2),
+          CarouselSlider(
+            options: CarouselOptions(
+              height: 200,
+              autoPlay: true,
+              enlargeCenterPage: true,
+              aspectRatio: 16 / 9,
+              viewportFraction: 0.8,
+            ),
+            items: _testimonials.map((testimonial) {
+              return _buildTestimonialCard(testimonial);
+            }).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCtaSection() {
+    return Container(
+      padding: EdgeInsets.symmetric(
+        vertical: _sectionPadding,
+        horizontal: _screenPadding,
+      ),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            TColors.primary.withOpacity(0.1),
+            TColors.primary.withOpacity(0.3),
+          ],
+        ),
+      ),
+      child: Column(
+        children: [
+          Text(
+            'Book a Free Consultation',
+            style: _headlineMedium(
+              context,
+            ).copyWith(color: dark ? TColors.white : TColors.black),
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: _elementPadding),
+          Text(
+            'Speak with our experts to find the best solutions for your farm.',
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              color: dark ? TColors.lightgrey : TColors.darkGrey,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: _elementPadding * 2),
+          _buildCtaButton('Book a Consultation', () {}),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     dark = Theme.of(context).brightness == Brightness.dark;
 
     return CustomScrollView(
       slivers: [
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: _screenPadding),
-            child: Container(
-              height: MediaQuery.of(context).size.height * 0.45,
-              margin: EdgeInsets.all(_elementPadding),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                color: Colors.grey[500],
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 6,
-                    offset: const Offset(0, 3),
-                  ),
-                ],
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: CarouselSlider(
-                  options: CarouselOptions(
-                    height: double.infinity,
-                    autoPlay: true,
-                    enlargeCenterPage: true,
-                    aspectRatio: 16 / 9,
-                    autoPlayInterval: const Duration(seconds: 5),
-                    viewportFraction: 1.0,
-                  ),
-                  items: _carouselItems.map((item) {
-                    return Builder(
-                      builder: (BuildContext context) {
-                        return Container(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              colors: [
-                                dark
-                                    ? TColors.dark.withOpacity(0.9)
-                                    : TColors.light.withOpacity(0.9),
-                                dark
-                                    ? TColors.darkGrey.withOpacity(0.7)
-                                    : TColors.lightgrey.withOpacity(0.7),
-                              ],
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: dark
-                                    ? Colors.black.withOpacity(0.2)
-                                    : Colors.grey.withOpacity(0.2),
-                                blurRadius: 6,
-                                spreadRadius: 1,
-                                offset: const Offset(0, 3),
-                              ),
-                            ],
-                          ),
-                          child: Column(
-                            children: [
-                              Expanded(
-                                flex: 3,
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(8),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      border: Border.all(
-                                        color: TColors.primary.withOpacity(0.5),
-                                        width: 1,
-                                      ),
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Image.asset(
-                                      item['image']!,
-                                      fit: BoxFit.cover,
-                                      width: double.infinity,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Expanded(
-                                flex: 2,
-                                child: Padding(
-                                  padding: EdgeInsets.all(_cardPadding),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        item['title']!,
-                                        style: _headlineLarge(context).copyWith(
-                                          fontSize: 18,
-                                          color: dark
-                                              ? TColors.white
-                                              : TColors.black,
-                                          shadows: [
-                                            Shadow(
-                                              color: dark
-                                                  ? Colors.black.withOpacity(
-                                                      0.5,
-                                                    )
-                                                  : Colors.white.withOpacity(
-                                                      0.5,
-                                                    ),
-                                              blurRadius: 6,
-                                              offset: const Offset(1, 1),
-                                            ),
-                                          ],
-                                        ),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                      SizedBox(height: _elementPadding * 0.5),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 6,
-                                          vertical: 3,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: TColors.primary.withOpacity(
-                                            0.2,
-                                          ),
-                                          borderRadius: BorderRadius.circular(
-                                            4,
-                                          ),
-                                        ),
-                                        child: Text(
-                                          'New Collection',
-                                          style: _bodyMedium(context).copyWith(
-                                            color: TColors.primary,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 9,
-                                          ),
-                                        ),
-                                      ),
-                                      SizedBox(height: _elementPadding),
-                                      Text(
-                                        item['description']!,
-                                        style: _bodyLarge(context).copyWith(
-                                          fontSize: 10,
-                                          color: dark
-                                              ? TColors.white.withOpacity(0.9)
-                                              : TColors.black.withOpacity(0.9),
-                                        ),
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                      SizedBox(height: _elementPadding),
-                                      ElevatedButton(
-                                        onPressed: () {},
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: TColors.primary,
-                                          foregroundColor: TColors.white,
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 16,
-                                            vertical: 8,
-                                          ),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              8,
-                                            ),
-                                          ),
-                                          elevation: 0,
-                                          shadowColor: TColors.primary
-                                              .withOpacity(0.5),
-                                        ),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Text(
-                                              'Shop Now',
-                                              style: GoogleFonts.poppins(
-                                                fontSize: 11,
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                            ),
-                                            SizedBox(
-                                              width: _elementPadding * 0.5,
-                                            ),
-                                            const Icon(
-                                              Iconsax.arrow_right_3,
-                                              size: 14,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    );
-                  }).toList(),
-                ),
-              ),
-            ),
-          ),
-        ),
+        SliverToBoxAdapter(child: _buildHeroSection()),
+        SliverToBoxAdapter(child: _buildSolutionsSection()),
         SliverToBoxAdapter(
           child: Container(
+            color: dark ? TColors.dark : TColors.light,
             padding: EdgeInsets.symmetric(
-              horizontal: _screenPadding,
               vertical: _sectionPadding,
+              horizontal: _screenPadding,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -794,16 +1077,16 @@ class _MobileHomePageState extends State<MobileHomePage> {
         ),
         SliverToBoxAdapter(
           child: Container(
-            padding: EdgeInsets.symmetric(
-              horizontal: _screenPadding,
-              vertical: _sectionPadding,
-            ),
             color: dark ? TColors.dark : TColors.light,
+            padding: EdgeInsets.symmetric(
+              vertical: _sectionPadding,
+              horizontal: _screenPadding,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Featured Products',
+                  'Featured Services',
                   style: _headlineMedium(
                     context,
                   ).copyWith(color: dark ? TColors.white : TColors.black),
@@ -824,7 +1107,7 @@ class _MobileHomePageState extends State<MobileHomePage> {
                             ),
                             SizedBox(height: _elementPadding),
                             Text(
-                              'No featured products found',
+                              'No featured services found',
                               style: _bodyMedium(context),
                             ),
                           ],
@@ -861,78 +1144,8 @@ class _MobileHomePageState extends State<MobileHomePage> {
             ),
           ),
         ),
-        SliverToBoxAdapter(
-          child: Container(
-            margin: EdgeInsets.symmetric(
-              horizontal: _screenPadding,
-              vertical: _sectionPadding,
-            ),
-            padding: EdgeInsets.all(_cardPadding),
-            decoration: BoxDecoration(
-              color: TColors.primary.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: TColors.primary, width: 0.5),
-            ),
-            child: Column(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Image.network(
-                    // Replace with valid URL or asset
-                    'https://via.placeholder.com/150',
-                    fit: BoxFit.cover,
-                    height: 120,
-                    width: double.infinity,
-                    errorBuilder: (context, error, stackTrace) => Container(
-                      color: Colors.grey[200],
-                      child: const Icon(Icons.image_not_supported),
-                    ),
-                  ),
-                ),
-                SizedBox(height: _elementPadding),
-                Text(
-                  'Special Offer',
-                  style: _headlineMedium(context).copyWith(
-                    fontSize: 16,
-                    color: dark ? TColors.white : TColors.black,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(height: _elementPadding * 0.5),
-                Text(
-                  'Get 20% off your first purchase! Limited time offer.',
-                  style: _bodyLarge(context).copyWith(
-                    fontSize: 10,
-                    color: dark ? TColors.white : TColors.black,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(height: _elementPadding),
-                ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: TColors.primary,
-                    foregroundColor: TColors.white,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: Text(
-                    'Buy Now',
-                    style: GoogleFonts.poppins(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
+        SliverToBoxAdapter(child: _buildTestimonialsSection()),
+        SliverToBoxAdapter(child: _buildCtaSection()),
         const SliverToBoxAdapter(child: Footer()),
       ],
     );

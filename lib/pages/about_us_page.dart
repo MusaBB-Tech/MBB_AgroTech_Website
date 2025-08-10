@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import '../../utils/constants/colors.dart';
+import '../responsive.dart';
 
 class AboutUsScreen extends StatelessWidget {
   const AboutUsScreen({super.key});
@@ -9,347 +10,317 @@ class AboutUsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dark = Theme.of(context).brightness == Brightness.dark;
-    final size = MediaQuery.of(context).size;
+    final isMobile = ResponsiveLayout.isMobile(context);
+    final isTablet = ResponsiveLayout.isTablet(context);
+    final isDesktop = ResponsiveLayout.isDesktop(context);
+
+    final double screenPadding = isDesktop
+        ? 32
+        : isTablet
+        ? 24
+        : 16;
+    final double sectionSpacing = isDesktop
+        ? 40
+        : isTablet
+        ? 32
+        : 24;
+    final double titleFontSize = isDesktop
+        ? 24
+        : isTablet
+        ? 20
+        : 18;
+    final double textFontSize = isDesktop
+        ? 16
+        : isTablet
+        ? 14
+        : 13;
+    final double iconSize = isDesktop
+        ? 28
+        : isTablet
+        ? 24
+        : 22;
+    final double teamAvatarSize = isDesktop
+        ? 80
+        : isTablet
+        ? 70
+        : 60;
+    final double buttonFontSize = isDesktop
+        ? 16
+        : isTablet
+        ? 14
+        : 13;
+    final double buttonHeight = isDesktop
+        ? 50
+        : isTablet
+        ? 46
+        : 44;
 
     return Scaffold(
-      backgroundColor: dark ? TColors.dark : Colors.grey[50],
+      backgroundColor: dark ? TColors.dark : TColors.light,
       body: SingleChildScrollView(
-        child: Column(
-          children: [
-            // Header Section
-            Container(
-              padding: const EdgeInsets.only(
-                left: 24,
-                right: 24,
-                top: 56,
-                bottom: 24,
-              ),
-              decoration: BoxDecoration(
-                color: dark ? TColors.darkContainer : Colors.white,
-                boxShadow: [
-                  if (!dark)
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 16,
-                      offset: const Offset(0, 4),
-                    ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  IconButton(
-                    icon: Icon(
-                      Iconsax.arrow_left,
-                      color: dark ? TColors.white : TColors.black,
-                    ),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'About Us',
-                    style: GoogleFonts.poppins(
-                      fontSize: 28,
-                      fontWeight: FontWeight.w700,
-                      color: dark ? TColors.white : TColors.black,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Learn more about our hydroponic mission',
-                    style: GoogleFonts.poppins(
-                      fontSize: 14,
-                      color: dark ? TColors.lightgrey : TColors.darkGrey,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            // Mission Section
-            Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(Iconsax.blur, color: TColors.primary, size: 24),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Our Mission',
-                        style: GoogleFonts.poppins(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                          color: dark ? TColors.white : TColors.black,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: isMobile ? screenPadding : screenPadding * 1.5,
+          ),
+          child: Column(
+            children: [
+              SizedBox(height: screenPadding),
+              // Mission Section
+              _buildSection(
+                context,
+                icon: Iconsax.blur,
+                title: 'Our Mission',
+                content:
                     'At HydroGrow, we believe in revolutionizing agriculture through sustainable hydroponic solutions. Our mission is to make urban farming accessible to everyone, reducing water usage by up to 90% compared to traditional farming while delivering fresh, pesticide-free produce year-round.',
-                    style: GoogleFonts.poppins(
-                      fontSize: 14,
-                      color: dark ? TColors.lightgrey : TColors.darkGrey,
-                    ),
-                    textAlign: TextAlign.justify,
-                  ),
-                ],
+                dark: dark,
+                screenPadding: screenPadding,
+                titleFontSize: titleFontSize,
+                textFontSize: textFontSize,
+                iconSize: iconSize,
               ),
-            ),
+              SizedBox(height: sectionSpacing),
 
-            // Image Section
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: Image.asset(
-                  'assets/images/hydroponic_farm.jpg', // Replace with your image
-                  fit: BoxFit.cover,
-                  height: size.height * 0.25,
-                  width: double.infinity,
-                ),
-              ),
-            ),
-
-            // Stats Section
-            Padding(
-              padding: const EdgeInsets.all(24),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: dark ? TColors.darkContainer : Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    if (!dark)
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
-                        blurRadius: 16,
-                        offset: const Offset(0, 4),
-                      ),
-                  ],
-                ),
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    _buildStatItem(
-                      context,
-                      '10K+',
-                      'Customers',
-                      Iconsax.people,
-                    ),
-                    _buildStatItem(context, '90%', 'Water Saved', Iconsax.drop),
-                    _buildStatItem(
-                      context,
-                      '5Y',
-                      'Experience',
-                      Iconsax.calendar,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            // Team Section
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(Iconsax.people, color: TColors.primary, size: 24),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Our Team',
-                        style: GoogleFonts.poppins(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                          color: dark ? TColors.white : TColors.black,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'We are a passionate team of agricultural engineers, sustainability experts, and tech enthusiasts dedicated to making hydroponic farming accessible to everyone.',
-                    style: GoogleFonts.poppins(
-                      fontSize: 14,
-                      color: dark ? TColors.lightgrey : TColors.darkGrey,
-                    ),
-                    textAlign: TextAlign.justify,
-                  ),
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    height: 120,
-                    child: ListView(
-                      scrollDirection: Axis.horizontal,
-                      children: [
-                        _buildTeamMember(
-                          'assets/images/team1.jpg', // Replace with your images
-                          'Alex',
-                          'Founder',
-                          dark,
-                        ),
-                        const SizedBox(width: 16),
-                        _buildTeamMember(
-                          'assets/images/team2.jpg',
-                          'Sarah',
-                          'Lead Engineer',
-                          dark,
-                        ),
-                        const SizedBox(width: 16),
-                        _buildTeamMember(
-                          'assets/images/team3.jpg',
-                          'Jamal',
-                          'Agronomist',
-                          dark,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            // Values Section
-            Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
+              // Team Section
+              Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
                       Icon(
-                        Iconsax.like_shapes,
+                        Iconsax.people,
                         color: TColors.primary,
-                        size: 24,
+                        size: iconSize,
                       ),
-                      const SizedBox(width: 8),
+                      SizedBox(width: screenPadding * 0.5),
                       Text(
-                        'Our Values',
+                        'Our Team',
                         style: GoogleFonts.poppins(
-                          fontSize: 20,
+                          fontSize: titleFontSize,
                           fontWeight: FontWeight.w600,
                           color: dark ? TColors.white : TColors.black,
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: screenPadding),
+                  Text(
+                    'We are a passionate team of agricultural engineers, sustainability experts, and tech enthusiasts dedicated to making hydroponic farming accessible to everyone.',
+                    style: GoogleFonts.poppins(
+                      fontSize: textFontSize,
+                      color: dark ? TColors.lightgrey : TColors.darkGrey,
+                      height: 1.6,
+                    ),
+                    textAlign: TextAlign.justify,
+                  ),
+                  SizedBox(height: screenPadding),
+                  SizedBox(
+                    height: teamAvatarSize * 1.8,
+                    child: ListView(
+                      scrollDirection: Axis.horizontal,
+                      children: [
+                        _buildTeamMember(
+                          'assets/images/team1.jpg',
+                          'Alex',
+                          'Founder',
+                          dark,
+                          teamAvatarSize,
+                          textFontSize,
+                        ),
+                        SizedBox(width: screenPadding),
+                        _buildTeamMember(
+                          'assets/images/team2.jpg',
+                          'Sarah',
+                          'Lead Engineer',
+                          dark,
+                          teamAvatarSize,
+                          textFontSize,
+                        ),
+                        SizedBox(width: screenPadding),
+                        _buildTeamMember(
+                          'assets/images/team3.jpg',
+                          'Jamal',
+                          'Agronomist',
+                          dark,
+                          teamAvatarSize,
+                          textFontSize,
+                        ),
+                        if (isDesktop) SizedBox(width: screenPadding),
+                        if (isDesktop)
+                          _buildTeamMember(
+                            'assets/images/team4.jpg',
+                            'Maria',
+                            'Marketing',
+                            dark,
+                            teamAvatarSize,
+                            textFontSize,
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: sectionSpacing),
+
+              // Values Section
+              _buildSection(
+                context,
+                icon: Iconsax.like_shapes,
+                title: 'Our Values',
+                content: '',
+                dark: dark,
+                screenPadding: screenPadding,
+                titleFontSize: titleFontSize,
+                textFontSize: textFontSize,
+                iconSize: iconSize,
+                children: [
                   _buildValueItem(
                     context,
                     'Sustainability',
                     'We prioritize eco-friendly solutions that minimize environmental impact.',
                     Iconsax.blur,
+                    dark,
+                    screenPadding,
+                    textFontSize,
                   ),
                   _buildValueItem(
                     context,
                     'Innovation',
                     'Constantly developing new technologies to improve urban farming.',
                     Iconsax.cpu,
+                    dark,
+                    screenPadding,
+                    textFontSize,
                   ),
                   _buildValueItem(
                     context,
                     'Community',
                     'Building a network of urban farmers sharing knowledge and produce.',
                     Iconsax.people,
+                    dark,
+                    screenPadding,
+                    textFontSize,
                   ),
                 ],
               ),
-            ),
+              SizedBox(height: sectionSpacing),
 
-            // Contact CTA
-            Container(
-              margin: const EdgeInsets.all(24),
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: TColors.primary.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: TColors.primary.withOpacity(0.3)),
-              ),
-              child: Column(
-                children: [
-                  Text(
-                    'Want to learn more about hydroponics?',
-                    style: GoogleFonts.poppins(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: dark ? TColors.white : TColors.black,
+              // Contact CTA
+              Container(
+                padding: EdgeInsets.all(screenPadding),
+                decoration: BoxDecoration(
+                  color: dark ? TColors.darkContainer : TColors.lightContainer,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: TColors.primary.withOpacity(0.3)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 12,
+                      offset: Offset(0, 4),
                     ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Contact our team of experts for personalized advice on setting up your hydroponic system.',
-                    style: GoogleFonts.poppins(
-                      fontSize: 14,
-                      color: dark ? TColors.lightgrey : TColors.darkGrey,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 24),
-                  ElevatedButton(
-                    onPressed: () {
-                      // Add contact functionality
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: TColors.primary,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 32,
-                        vertical: 16,
-                      ),
-                    ),
-                    child: Text(
-                      'Contact Us',
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      'Want to learn more about hydroponics?',
                       style: GoogleFonts.poppins(
-                        fontSize: 16,
+                        fontSize: titleFontSize,
                         fontWeight: FontWeight.w600,
+                        color: dark ? TColors.white : TColors.black,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(height: screenPadding * 0.8),
+                    Text(
+                      'Contact our team of experts for personalized advice on setting up your hydroponic system.',
+                      style: GoogleFonts.poppins(
+                        fontSize: textFontSize,
+                        color: dark ? TColors.lightgrey : TColors.darkGrey,
+                        height: 1.6,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(height: screenPadding * 1.5),
+                    SizedBox(
+                      width: isMobile ? double.infinity : null,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          // Add contact functionality
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: TColors.primary,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: screenPadding * 2,
+                            vertical: buttonHeight * 0.5,
+                          ),
+                          elevation: 0,
+                          shadowColor: Colors.black.withOpacity(0.1),
+                        ),
+                        child: Text(
+                          'Contact Us',
+                          style: GoogleFonts.poppins(
+                            fontSize: buttonFontSize,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+              SizedBox(height: screenPadding * 1.5),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildStatItem(
-    BuildContext context,
-    String value,
-    String label,
-    IconData icon,
-  ) {
-    final dark = Theme.of(context).brightness == Brightness.dark;
-
+  Widget _buildSection(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required String content,
+    required bool dark,
+    required double screenPadding,
+    required double titleFontSize,
+    required double textFontSize,
+    required double iconSize,
+    List<Widget> children = const [],
+  }) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, color: TColors.primary, size: 24),
-        const SizedBox(height: 8),
-        Text(
-          value,
-          style: GoogleFonts.poppins(
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
-            color: TColors.primary,
-          ),
+        Row(
+          children: [
+            Icon(icon, color: TColors.primary, size: iconSize),
+            SizedBox(width: screenPadding * 0.5),
+            Text(
+              title,
+              style: GoogleFonts.poppins(
+                fontSize: titleFontSize,
+                fontWeight: FontWeight.w600,
+                color: dark ? TColors.white : TColors.black,
+              ),
+            ),
+          ],
         ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: GoogleFonts.poppins(
-            fontSize: 12,
-            color: dark ? TColors.lightgrey : TColors.darkGrey,
+        SizedBox(height: screenPadding),
+        if (content.isNotEmpty)
+          Text(
+            content,
+            style: GoogleFonts.poppins(
+              fontSize: textFontSize,
+              color: dark ? TColors.lightgrey : TColors.darkGrey,
+              height: 1.6,
+            ),
+            textAlign: TextAlign.justify,
           ),
-        ),
+        ...children,
       ],
     );
   }
@@ -359,22 +330,30 @@ class AboutUsScreen extends StatelessWidget {
     String name,
     String role,
     bool dark,
+    double avatarSize,
+    double fontSize,
   ) {
     return Column(
       children: [
-        CircleAvatar(radius: 32, backgroundImage: AssetImage(imagePath)),
-        const SizedBox(height: 8),
+        CircleAvatar(
+          radius: avatarSize / 2,
+          backgroundImage: AssetImage(imagePath),
+        ),
+        SizedBox(height: 8),
         Text(
           name,
           style: GoogleFonts.poppins(
-            fontSize: 14,
+            fontSize: fontSize,
             fontWeight: FontWeight.w600,
             color: dark ? TColors.white : TColors.black,
           ),
         ),
         Text(
           role,
-          style: GoogleFonts.poppins(fontSize: 12, color: TColors.primary),
+          style: GoogleFonts.poppins(
+            fontSize: fontSize - 2,
+            color: TColors.primary,
+          ),
         ),
       ],
     );
@@ -385,23 +364,24 @@ class AboutUsScreen extends StatelessWidget {
     String title,
     String description,
     IconData icon,
+    bool dark,
+    double padding,
+    double fontSize,
   ) {
-    final dark = Theme.of(context).brightness == Brightness.dark;
-
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: EdgeInsets.only(bottom: padding),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: EdgeInsets.all(padding * 0.5),
             decoration: BoxDecoration(
               color: TColors.primary.withOpacity(0.1),
               shape: BoxShape.circle,
             ),
-            child: Icon(icon, color: TColors.primary, size: 20),
+            child: Icon(icon, color: TColors.primary, size: fontSize * 1.2),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: padding * 0.8),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -409,17 +389,19 @@ class AboutUsScreen extends StatelessWidget {
                 Text(
                   title,
                   style: GoogleFonts.poppins(
-                    fontSize: 16,
+                    fontSize: fontSize,
                     fontWeight: FontWeight.w600,
                     color: dark ? TColors.white : TColors.black,
                   ),
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: 4),
                 Text(
                   description,
                   style: GoogleFonts.poppins(
-                    fontSize: 13,
+                    fontSize:
+                        fontSize - (ResponsiveLayout.isMobile(context) ? 0 : 1),
                     color: dark ? TColors.lightgrey : TColors.darkGrey,
+                    height: 1.5,
                   ),
                 ),
               ],

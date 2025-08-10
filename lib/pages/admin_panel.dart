@@ -488,7 +488,7 @@ class _AdminPanelState extends State<AdminPanel>
 
         // Validate file extension
         String? extension = file.extension?.toLowerCase();
-        if (extension == null || !['jpg', 'jpeg', 'png'].contains(extension)) {
+        if (!['jpg', 'jpeg', 'png'].contains(extension)) {
           if (mounted) {
             showCustomSnackbar(
               context,
