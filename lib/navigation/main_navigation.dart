@@ -12,6 +12,7 @@ import '../pages/home_page.dart';
 import '../pages/profile_screen.dart';
 import '../utils/constants/colors.dart';
 import '../utils/helpers/helper_functions.dart';
+import '../widgets/contact_us_dialog.dart';
 
 class MainNavigationWrapper extends StatefulWidget {
   const MainNavigationWrapper({super.key});
@@ -739,7 +740,12 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
                 ? _buildBottomNavigationBar(dark)
                 : null,
             floatingActionButton: FloatingActionButton(
-              onPressed: () {},
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => const ContactUsDialog(),
+                );
+              },
               backgroundColor: TColors.primary,
               child: const Icon(Iconsax.support, color: TColors.white),
             ),

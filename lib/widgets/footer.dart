@@ -320,7 +320,7 @@ class Footer extends StatelessWidget {
                 Icon(Icons.email, size: 16, color: TColors.primary),
                 const SizedBox(width: 8),
                 Text(
-                  'info@mbbagrotech.com',
+                  'mbbagrotech@gmail.com',
                   style: GoogleFonts.poppins(
                     color: dark ? TColors.white : TColors.black,
                     fontSize: 13,
@@ -335,7 +335,7 @@ class Footer extends StatelessWidget {
                 Icon(Icons.phone, size: 16, color: TColors.primary),
                 const SizedBox(width: 8),
                 Text(
-                  '+234 800 000 0000',
+                  '+234 704 630 6129',
                   style: GoogleFonts.poppins(
                     color: dark ? TColors.white : TColors.black,
                     fontSize: 13,

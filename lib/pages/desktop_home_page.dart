@@ -643,46 +643,6 @@ class _DesktopHomePageState extends State<DesktopHomePage> {
     );
   }
 
-  Widget _buildStatItem(String value, String label) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        color: _darkMode ? TColors.darkContainer : TColors.lightContainer,
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            AnimatedTextKit(
-              animatedTexts: [
-                TyperAnimatedText(
-                  value,
-                  textStyle: GoogleFonts.poppins(
-                    fontSize: 36,
-                    fontWeight: FontWeight.w800,
-                    color: TColors.primary,
-                  ),
-                  speed: const Duration(milliseconds: 100),
-                ),
-              ],
-              isRepeatingAnimation: false,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              label,
-              style: GoogleFonts.inter(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: _darkMode ? TColors.lightgrey : TColors.darkGrey,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildOfferingCard(Map<String, dynamic> offering) {
     return Card(
       elevation: 0,
