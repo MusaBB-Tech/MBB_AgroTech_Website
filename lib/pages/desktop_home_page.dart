@@ -6,6 +6,7 @@ import 'package:shimmer/shimmer.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
 import '../utils/constants/colors.dart';
+import '../widgets/book_consultaion_dialog.dart';
 import '../widgets/footer.dart';
 import 'product_detail_screen.dart';
 import 'dart:async';
@@ -833,9 +834,9 @@ class _DesktopHomePageState extends State<DesktopHomePage> {
       style: ElevatedButton.styleFrom(
         backgroundColor: TColors.primary,
         foregroundColor: TColors.white,
-        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        elevation: 2,
+
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+        elevation: 0,
       ),
       child: Text(
         label,
@@ -941,13 +942,9 @@ class _DesktopHomePageState extends State<DesktopHomePage> {
                       OutlinedButton(
                         onPressed: () {},
                         style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 32,
-                            vertical: 16,
-                          ),
-                          side: BorderSide(color: TColors.white, width: 1.5),
+                          side: BorderSide(color: TColors.white, width: 0.5),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(30),
                           ),
                         ),
                         child: Text(
@@ -1188,7 +1185,7 @@ class _DesktopHomePageState extends State<DesktopHomePage> {
           child: Column(
             children: [
               Text(
-                'Book a Free Consultation',
+                'Book a Consultation',
                 style: _headlineMedium(
                   context,
                 ).copyWith(color: _darkMode ? TColors.white : TColors.black),
@@ -1202,7 +1199,12 @@ class _DesktopHomePageState extends State<DesktopHomePage> {
                 ),
               ),
               const SizedBox(height: 40),
-              _buildCtaButton('Book a Consultation', () {}),
+              _buildCtaButton('Book a Consultation', () {
+                showDialog(
+                  context: context,
+                  builder: (context) => const BookConsultationDialog(),
+                );
+              }),
             ],
           ),
         ),

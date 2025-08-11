@@ -7,21 +7,35 @@ import '../utils/showSnackBar.dart';
 import '../utils/helpers/helper_functions.dart';
 import 'dart:ui';
 
-class ContactUsDialog extends StatefulWidget {
-  const ContactUsDialog({super.key});
+class BookConsultationDialog extends StatefulWidget {
+  const BookConsultationDialog({super.key});
 
   @override
-  State<ContactUsDialog> createState() => _ContactUsDialogState();
+  State<BookConsultationDialog> createState() => _BookConsultationDialogState();
 }
 
-class _ContactUsDialogState extends State<ContactUsDialog> {
+class _BookConsultationDialogState extends State<BookConsultationDialog> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _messageController = TextEditingController();
+  String? _selectedConsultationType;
   bool _isLoading = false;
 
   // Supabase client
   final SupabaseClient _supabase = Supabase.instance.client;
+
+  // Consultation types
+  final List<String> _consultationTypes = [
+    'Hydroponics System Design',
+    'Farm Setup Consultation',
+    'Crop Selection Advice',
+    'Nutrient Management',
+    'System Troubleshooting',
+    'Commercial Scale Planning',
+    'Home Hydroponics Setup',
+    'Other Inquiry',
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -72,7 +86,7 @@ class _ContactUsDialogState extends State<ContactUsDialog> {
                                   ),
                             ),
                             Text(
-                              'Growing Smart, Feeding the Future',
+                              'Hydroponics Experts - Book a Consultation',
                               style: Theme.of(context).textTheme.bodyMedium
                                   ?.copyWith(
                                     color: dark
@@ -85,11 +99,11 @@ class _ContactUsDialogState extends State<ContactUsDialog> {
                         ),
                         const SizedBox(height: 16),
 
-                        // Contact Form Title
+                        // Consultation Form Title
                         Padding(
                           padding: const EdgeInsets.only(top: 8.0),
                           child: Text(
-                            'Contact Our Team',
+                            'Schedule Your Consultation',
                             style: Theme.of(context).textTheme.titleLarge
                                 ?.copyWith(
                                   color: dark ? Colors.white : TColors.dark,
@@ -98,12 +112,12 @@ class _ContactUsDialogState extends State<ContactUsDialog> {
                         ),
                         const SizedBox(height: 16),
 
-                        // Contact Form
-                        _buildContactForm(dark),
+                        // Consultation Form
+                        _buildConsultationForm(dark),
 
                         const SizedBox(height: 20),
 
-                        // Additional Contact Info
+                        // Additional Info
                         _buildContactInfo(dark),
 
                         const SizedBox(height: 20),
@@ -147,7 +161,7 @@ class _ContactUsDialogState extends State<ContactUsDialog> {
     );
   }
 
-  Widget _buildContactForm(bool dark) {
+  Widget _buildConsultationForm(bool dark) {
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 8),
       child: Column(
@@ -171,13 +185,71 @@ class _ContactUsDialogState extends State<ContactUsDialog> {
           ),
           const SizedBox(height: 12),
           TextField(
+            controller: _phoneController,
+            keyboardType: TextInputType.phone,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: dark ? Colors.white : Colors.black,
+            ),
+            decoration: _inputDecoration('Phone Number', Iconsax.call, dark),
+          ),
+          const SizedBox(height: 12),
+
+          // Replace the existing Consultation Type Dropdown with this:
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              color: dark
+                  ? Colors.black.withOpacity(0.4)
+                  : Colors.white.withOpacity(0.6),
+              border: Border.all(
+                color: dark
+                    ? Colors.white.withOpacity(0.1)
+                    : Colors.black.withOpacity(0.1),
+              ),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: DropdownButtonFormField<String>(
+              dropdownColor: dark
+                  ? Colors.black.withOpacity(0.8)
+                  : Colors.white.withOpacity(0.9),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: dark ? Colors.white : Colors.black,
+              ),
+              value: _selectedConsultationType,
+              decoration: InputDecoration(
+                border: InputBorder.none,
+                prefixIcon: Icon(Iconsax.book, color: TColors.primary),
+                hintText: 'Select Consultation Type',
+                hintStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: dark
+                      ? Colors.white.withOpacity(0.7)
+                      : Colors.black.withOpacity(0.6),
+                ),
+              ),
+              items: _consultationTypes.map((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList(),
+              onChanged: (newValue) {
+                setState(() {
+                  _selectedConsultationType = newValue;
+                });
+              },
+              isExpanded: true,
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          TextField(
             controller: _messageController,
-            maxLines: 5,
+            maxLines: 4,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: dark ? Colors.white : Colors.black,
             ),
             decoration: _inputDecoration(
-              'Your Message',
+              'Additional Details (Optional)',
               Iconsax.message_text,
               dark,
             ),
@@ -193,10 +265,10 @@ class _ContactUsDialogState extends State<ContactUsDialog> {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Iconsax.call, size: 16, color: TColors.primary),
+            Icon(Iconsax.calendar, size: 16, color: TColors.primary),
             const SizedBox(width: 8),
             Text(
-              '+234 704 630 6129',
+              'Monday - Friday, 9am - 5pm',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: dark ? Colors.white70 : TColors.darkGrey,
               ),
@@ -207,10 +279,10 @@ class _ContactUsDialogState extends State<ContactUsDialog> {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Iconsax.sms, size: 16, color: TColors.primary),
+            Icon(Iconsax.call, size: 16, color: TColors.primary),
             const SizedBox(width: 8),
             Text(
-              'mbbagrotech@gmail.com',
+              '+234 704 630 6129',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: dark ? Colors.white70 : TColors.darkGrey,
               ),
@@ -253,11 +325,11 @@ class _ContactUsDialogState extends State<ContactUsDialog> {
                 borderRadius: BorderRadius.circular(30),
               ),
             ),
-            onPressed: _isLoading ? null : _submitContactForm,
+            onPressed: _isLoading ? null : _submitConsultationRequest,
             child: _isLoading
                 ? const CustomLoadingWidget()
                 : Text(
-                    'Send Message',
+                    'Book Consultation',
                     style: Theme.of(
                       context,
                     ).textTheme.bodyMedium?.copyWith(color: Colors.white),
@@ -305,11 +377,12 @@ class _ContactUsDialogState extends State<ContactUsDialog> {
     );
   }
 
-  Future<void> _submitContactForm() async {
+  Future<void> _submitConsultationRequest() async {
     if (_nameController.text.isEmpty ||
         _emailController.text.isEmpty ||
-        _messageController.text.isEmpty) {
-      CustomSnackbar.warning(context, 'Please fill all fields');
+        _phoneController.text.isEmpty ||
+        _selectedConsultationType == null) {
+      CustomSnackbar.warning(context, 'Please fill all required fields');
       return;
     }
 
@@ -318,21 +391,30 @@ class _ContactUsDialogState extends State<ContactUsDialog> {
     });
 
     try {
-      // Insert the contact form data into Supabase
-      final response = await _supabase.from('contact_submissions').insert({
+      // Insert the consultation request into Supabase
+      final response = await _supabase.from('consultation_requests').insert({
         'name': _nameController.text,
         'email': _emailController.text,
+        'phone': _phoneController.text,
+        'consultation_type': _selectedConsultationType,
         'message': _messageController.text,
-        'submitted_at': DateTime.now().toIso8601String(),
+        'requested_at': DateTime.now().toIso8601String(),
+        'status': 'Pending',
       });
 
       if (response != null) {
         throw response.error!;
       }
       Navigator.of(context).pop();
-      CustomToast.success(context, "Your message has been sent successfully!");
+      CustomToast.success(
+        context,
+        "Your consultation request has been submitted successfully!",
+      );
     } catch (e) {
-      CustomToast.success(context, "Failed to send message ");
+      CustomToast.error(
+        context,
+        "Failed to submit consultation request. Please try again.",
+      );
     } finally {
       setState(() {
         _isLoading = false;
@@ -344,6 +426,7 @@ class _ContactUsDialogState extends State<ContactUsDialog> {
   void dispose() {
     _nameController.dispose();
     _emailController.dispose();
+    _phoneController.dispose();
     _messageController.dispose();
     super.dispose();
   }

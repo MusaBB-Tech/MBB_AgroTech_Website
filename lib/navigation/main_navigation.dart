@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:mbb_agrotech_website/pages/admin_panel.dart';
 import 'package:mbb_agrotech_website/pages/products_screen.dart';
+import 'package:mbb_agrotech_website/utils/showSnackBar.dart';
 import 'package:mbb_agrotech_website/widgets/signi_signup_dialog.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../pages/about_us_page.dart';
@@ -224,15 +225,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
         _isAdmin = false;
       });
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Sign-out failed: $e'),
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-      );
+      CustomSnackbar.success(context, 'Sign-out failed:');
     }
   }
 
@@ -241,15 +234,8 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
   void _showDropdown(String label, RenderBox renderBox, double screenWidth) {
     if ((label == 'Cart' || label == 'Account' || label == 'Admin') &&
         !_isAuthenticated) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Please sign in to access this page'),
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-      );
+      CustomSnackbar.success(context, 'Please sign in to access this page');
+
       return;
     }
     if (label == 'Admin' && _isAdmin != true) {
@@ -474,15 +460,8 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
                 item['title'] == 'Saved Items' ||
                 item['title'] == 'Sign Out' ||
                 item['title'] == 'Admin Panel')) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: const Text('Please sign in to access this page'),
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-          );
+          CustomSnackbar.success(context, 'Please sign in to access this page');
+
           return;
         }
 
@@ -675,16 +654,9 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
                                     item['title'] == 'Saved Items' ||
                                     item['title'] == 'Sign Out' ||
                                     item['title'] == 'Admin Panel')) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: const Text(
-                                    'Please sign in to access this page',
-                                  ),
-                                  behavior: SnackBarBehavior.floating,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                ),
+                              CustomSnackbar.success(
+                                context,
+                                'Please sign in to access this page',
                               );
                               return;
                             }
@@ -747,7 +719,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
                 );
               },
               backgroundColor: TColors.primary,
-              child: const Icon(Iconsax.support, color: TColors.white),
+              child: const Icon(Iconsax.message_text, color: TColors.white),
             ),
           );
         },
@@ -822,14 +794,9 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
         selectedIndex: _currentIndex,
         onDestinationSelected: (index) {
           if ((index == 2 || index == 3 || index == 4) && !_isAuthenticated) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: const Text('Please sign in to access this page'),
-                behavior: SnackBarBehavior.floating,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
+            CustomSnackbar.success(
+              context,
+              'Please sign in to access this page',
             );
             return;
           }
@@ -1122,14 +1089,9 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
       child: GestureDetector(
         onTap: () {
           if ((index == 2 || index == 3 || index == 4) && !_isAuthenticated) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: const Text('Please sign in to access this page'),
-                behavior: SnackBarBehavior.floating,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
+            CustomSnackbar.success(
+              context,
+              'Please sign in to access this page',
             );
             return;
           }
