@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
+import 'package:mbb_agrotech_website/widgets/contact_us_dialog.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -940,7 +941,12 @@ class _DesktopHomePageState extends State<DesktopHomePage> {
                       _buildCtaButton('Explore Solutions', () {}),
                       const SizedBox(width: 16),
                       OutlinedButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) => const ContactUsDialog(),
+                          );
+                        },
                         style: OutlinedButton.styleFrom(
                           side: BorderSide(color: TColors.white, width: 0.5),
                           shape: RoundedRectangleBorder(

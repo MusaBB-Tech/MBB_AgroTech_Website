@@ -278,6 +278,71 @@ class _ProductsScreenState extends State<ProductsScreen>
     );
   }
 
+  Widget _buildMobileShimmerEffect() {
+    return GridView.builder(
+      padding: EdgeInsets.all(8),
+      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+        maxCrossAxisExtent: 200,
+        crossAxisSpacing: 8,
+        mainAxisSpacing: 8,
+        childAspectRatio: 0.7,
+      ),
+      itemCount: 6,
+      itemBuilder: (context, index) {
+        final dark = Theme.of(context).brightness == Brightness.dark;
+        return Shimmer.fromColors(
+          baseColor: dark ? TColors.darkGrey : TColors.softgrey,
+          highlightColor: TColors.grey,
+          child: Card(
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            color: dark ? TColors.darkContainer : TColors.lightContainer,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(20),
+                    ),
+                    child: AspectRatio(
+                      aspectRatio: 2,
+                      child: Container(color: Colors.white),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(width: 100, height: 16, color: Colors.white),
+                      SizedBox(height: 8),
+                      Container(width: 150, height: 14, color: Colors.white),
+                      SizedBox(height: 8),
+                      Container(width: 80, height: 14, color: Colors.white),
+                      SizedBox(height: 8),
+                      Container(
+                        width: double.infinity,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   Widget _buildProductCard(Map<String, dynamic> product) {
     final dark = Theme.of(context).brightness == Brightness.dark;
     return Card(
@@ -436,6 +501,168 @@ class _ProductsScreenState extends State<ProductsScreen>
                         ),
                         const SizedBox(width: 8),
                         const Icon(Iconsax.add, size: 18),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMobileProductCard(Map<String, dynamic> product) {
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      color: dark ? TColors.darkContainer : TColors.lightContainer,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Stack(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                  child:
+                      product['image1'] != null && product['image1'].isNotEmpty
+                      ? Image.network(
+                          product['image1'],
+                          fit: BoxFit.cover,
+                          width: double.infinity,
+                          loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return Shimmer.fromColors(
+                              baseColor: dark
+                                  ? TColors.darkGrey
+                                  : TColors.softgrey,
+                              highlightColor: TColors.grey,
+                              child: Container(color: Colors.white),
+                            );
+                          },
+                          errorBuilder: (context, error, stackTrace) =>
+                              Container(
+                                color: Colors.grey[200],
+                                child: const Icon(
+                                  Iconsax.image,
+                                  size: 60,
+                                  color: TColors.grey,
+                                ),
+                              ),
+                        )
+                      : Container(
+                          color: Colors.grey[200],
+                          child: const Icon(
+                            Iconsax.image,
+                            size: 60,
+                            color: TColors.grey,
+                          ),
+                        ),
+                ),
+                if (product['stock'] != null && product['stock'] <= 5)
+                  Positioned(
+                    top: 12,
+                    left: 12,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.redAccent,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        'Low Stock',
+                        style: GoogleFonts.poppins(
+                          fontSize: 10,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      '₦${product['price']?.toStringAsFixed(2) ?? 'N/A'}',
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: TColors.primary,
+                      ),
+                    ),
+                    SizedBox(width: 8),
+                    Row(
+                      children: List.generate(5, (index) {
+                        return Icon(
+                          index < (product['rating'] ?? 0)
+                              ? Icons.star
+                              : Icons.star_border,
+                          color: Colors.amber,
+                          size: 14,
+                        );
+                      }),
+                    ),
+                  ],
+                ),
+                Text(
+                  product['name']?.toString() ?? 'Unnamed Product',
+                  style: GoogleFonts.poppins(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: dark ? TColors.white : TColors.black,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Text(
+                  'Stock: ${product['stock']?.toString() ?? 'N/A'} | Size: ${product['size']?.toString() ?? 'N/A'}',
+                  style: GoogleFonts.poppins(
+                    fontSize: 10,
+                    color: dark ? TColors.lightgrey : TColors.darkGrey,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                SizedBox(height: 8),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () => _addToCart(product),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                      backgroundColor: TColors.primary,
+                      foregroundColor: Colors.white,
+                      side: const BorderSide(color: TColors.primary),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'Add to Cart',
+                          style: GoogleFonts.poppins(fontSize: 12),
+                        ),
+                        const SizedBox(width: 8),
+                        const Icon(
+                          Icons.add_shopping_cart,
+                          color: Colors.white,
+                          size: 16,
+                        ),
                       ],
                     ),
                   ),
@@ -644,14 +871,207 @@ class _ProductsScreenState extends State<ProductsScreen>
     );
   }
 
+  Widget _buildMobileView() {
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          'Hydroponic Store',
+          style: GoogleFonts.poppins(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: dark ? TColors.white : TColors.black,
+          ),
+        ),
+        elevation: 0,
+        centerTitle: true,
+        backgroundColor: dark ? TColors.dark : TColors.light,
+        actions: [
+          IconButton(
+            icon: Icon(
+              Iconsax.shopping_cart,
+              color: dark ? TColors.white : TColors.black,
+            ),
+            onPressed: () {
+              // Navigate to cart screen
+            },
+          ),
+          SizedBox(width: 8),
+        ],
+      ),
+      backgroundColor: dark ? TColors.dark : TColors.light,
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              controller: _searchController,
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                color: dark ? TColors.white : TColors.black,
+              ),
+              decoration: InputDecoration(
+                hintText: 'Search products...',
+                hintStyle: GoogleFonts.poppins(
+                  fontSize: 14,
+                  color: dark
+                      ? TColors.white.withOpacity(0.6)
+                      : TColors.darkGrey,
+                ),
+                filled: true,
+                fillColor: dark
+                    ? TColors.darkContainer
+                    : TColors.lightContainer,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(30),
+                  borderSide: BorderSide.none,
+                ),
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+                prefixIcon: Icon(
+                  Iconsax.search_normal_1,
+                  color: dark ? TColors.white : TColors.black,
+                ),
+                suffixIcon: _searchController.text.isNotEmpty
+                    ? IconButton(
+                        icon: Icon(
+                          Icons.close,
+                          color: dark
+                              ? TColors.white.withOpacity(0.6)
+                              : TColors.darkGrey,
+                        ),
+                        onPressed: () {
+                          _searchController.clear();
+                          _filterProducts('');
+                        },
+                      )
+                    : null,
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              vertical: 8.0,
+              horizontal: 16.0,
+            ),
+            child: Container(
+              decoration: BoxDecoration(
+                color: dark ? TColors.darkContainer : TColors.lightContainer,
+                borderRadius: BorderRadius.circular(30),
+              ),
+              child: TabBar(
+                controller: _tabController,
+                isScrollable: true,
+                unselectedLabelColor: dark
+                    ? TColors.white.withOpacity(0.6)
+                    : TColors.darkGrey,
+                labelColor: TColors.white,
+                labelStyle: GoogleFonts.poppins(
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
+                unselectedLabelStyle: GoogleFonts.poppins(fontSize: 10),
+                indicator: BoxDecoration(
+                  borderRadius: BorderRadius.circular(30),
+                  color: TColors.primary,
+                ),
+                indicatorSize: TabBarIndicatorSize.tab,
+                indicatorPadding: EdgeInsets.symmetric(
+                  horizontal: 5.0,
+                  vertical: 5.0,
+                ),
+                labelPadding: EdgeInsets.symmetric(horizontal: 8.0),
+                dividerColor: Colors.transparent,
+                tabs: _categories.map((category) {
+                  return Tab(
+                    icon: Icon(category['icon'] as IconData, size: 18),
+                    text: category['name'] as String,
+                  );
+                }).toList(),
+              ),
+            ),
+          ),
+          Expanded(
+            child: RefreshIndicator(
+              color: TColors.primary,
+              backgroundColor: Colors.transparent,
+              onRefresh: _refreshProducts,
+              child: _isLoading
+                  ? _buildMobileShimmerEffect()
+                  : _filteredProducts.isEmpty
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Iconsax.box_search,
+                            size: 60,
+                            color: dark
+                                ? TColors.white.withOpacity(0.6)
+                                : TColors.darkGrey,
+                          ),
+                          SizedBox(height: 16),
+                          Text(
+                            'No products found',
+                            style: GoogleFonts.poppins(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                              color: dark ? TColors.white : TColors.darkGrey,
+                            ),
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            'Try a different search term or category',
+                            style: GoogleFonts.poppins(
+                              fontSize: 12,
+                              color: dark
+                                  ? TColors.lightgrey
+                                  : TColors.darkGrey,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : GridView.builder(
+                      padding: EdgeInsets.all(8),
+                      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                        maxCrossAxisExtent: 200,
+                        crossAxisSpacing: 8,
+                        mainAxisSpacing: 8,
+                        childAspectRatio: 0.7,
+                      ),
+                      itemCount: _filteredProducts.length,
+                      itemBuilder: (context, index) {
+                        final product = _filteredProducts[index];
+                        return GestureDetector(
+                          onTap: () => _showProductDetails(product),
+                          child: _buildMobileProductCard(product),
+                        );
+                      },
+                    ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final dark = Theme.of(context).brightness == Brightness.dark;
+    final isMobile = MediaQuery.of(context).size.width < 600;
+    if (isMobile) {
+      return _buildMobileView();
+    }
+
     final isTablet = ResponsiveLayout.isTablet(context);
     final isDesktop = ResponsiveLayout.isDesktop(context);
 
     return Scaffold(
-      backgroundColor: dark ? TColors.dark : TColors.light,
+      backgroundColor: Theme.of(context).brightness == Brightness.dark
+          ? TColors.dark
+          : TColors.light,
       body: Row(
         children: [
           if (isDesktop) _buildCategorySidebar(),
@@ -674,7 +1094,9 @@ class _ProductsScreenState extends State<ProductsScreen>
                         style: GoogleFonts.poppins(
                           fontSize: isDesktop ? 36 : 32,
                           fontWeight: FontWeight.w700,
-                          color: dark ? TColors.white : TColors.black,
+                          color: Theme.of(context).brightness == Brightness.dark
+                              ? TColors.white
+                              : TColors.black,
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -682,7 +1104,9 @@ class _ProductsScreenState extends State<ProductsScreen>
                         'Premium hydroponic equipment and supplies',
                         style: GoogleFonts.poppins(
                           fontSize: isDesktop ? 16 : 14,
-                          color: dark ? TColors.lightgrey : TColors.darkGrey,
+                          color: Theme.of(context).brightness == Brightness.dark
+                              ? TColors.lightgrey
+                              : TColors.darkGrey,
                         ),
                       ),
                       const SizedBox(height: 24),
@@ -692,18 +1116,24 @@ class _ProductsScreenState extends State<ProductsScreen>
                           controller: _searchController,
                           style: GoogleFonts.poppins(
                             fontSize: 16,
-                            color: dark ? TColors.white : TColors.black,
+                            color:
+                                Theme.of(context).brightness == Brightness.dark
+                                ? TColors.white
+                                : TColors.black,
                           ),
                           decoration: InputDecoration(
                             hintText: 'Search products...',
                             hintStyle: GoogleFonts.poppins(
                               fontSize: 16,
-                              color: dark
+                              color:
+                                  Theme.of(context).brightness ==
+                                      Brightness.dark
                                   ? TColors.white.withOpacity(0.6)
                                   : TColors.darkGrey,
                             ),
                             filled: true,
-                            fillColor: dark
+                            fillColor:
+                                Theme.of(context).brightness == Brightness.dark
                                 ? TColors.darkContainer
                                 : TColors.lightContainer,
                             border: OutlineInputBorder(
@@ -716,13 +1146,19 @@ class _ProductsScreenState extends State<ProductsScreen>
                             ),
                             prefixIcon: Icon(
                               Iconsax.search_normal_1,
-                              color: dark ? TColors.white : TColors.black,
+                              color:
+                                  Theme.of(context).brightness ==
+                                      Brightness.dark
+                                  ? TColors.white
+                                  : TColors.black,
                             ),
                             suffixIcon: _searchController.text.isNotEmpty
                                 ? IconButton(
                                     icon: Icon(
                                       Icons.close,
-                                      color: dark
+                                      color:
+                                          Theme.of(context).brightness ==
+                                              Brightness.dark
                                           ? TColors.white.withOpacity(0.6)
                                           : TColors.darkGrey,
                                     ),
@@ -742,7 +1178,10 @@ class _ProductsScreenState extends State<ProductsScreen>
                 Expanded(
                   child: RefreshIndicator(
                     color: TColors.primary,
-                    backgroundColor: dark ? TColors.dark : TColors.light,
+                    backgroundColor:
+                        Theme.of(context).brightness == Brightness.dark
+                        ? TColors.dark
+                        : TColors.light,
                     onRefresh: _refreshProducts,
                     child: _isLoading
                         ? _buildShimmerEffect()
@@ -754,7 +1193,9 @@ class _ProductsScreenState extends State<ProductsScreen>
                                 Icon(
                                   Iconsax.box_search,
                                   size: 60,
-                                  color: dark
+                                  color:
+                                      Theme.of(context).brightness ==
+                                          Brightness.dark
                                       ? TColors.white.withOpacity(0.6)
                                       : TColors.darkGrey,
                                 ),
@@ -764,7 +1205,9 @@ class _ProductsScreenState extends State<ProductsScreen>
                                   style: GoogleFonts.poppins(
                                     fontSize: 18,
                                     fontWeight: FontWeight.w500,
-                                    color: dark
+                                    color:
+                                        Theme.of(context).brightness ==
+                                            Brightness.dark
                                         ? TColors.white
                                         : TColors.darkGrey,
                                   ),
@@ -774,7 +1217,9 @@ class _ProductsScreenState extends State<ProductsScreen>
                                   'Try a different search term or category',
                                   style: GoogleFonts.poppins(
                                     fontSize: 14,
-                                    color: dark
+                                    color:
+                                        Theme.of(context).brightness ==
+                                            Brightness.dark
                                         ? TColors.lightgrey
                                         : TColors.darkGrey,
                                   ),
