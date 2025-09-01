@@ -281,8 +281,8 @@ class _ProductsScreenState extends State<ProductsScreen>
   Widget _buildMobileShimmerEffect() {
     return GridView.builder(
       padding: EdgeInsets.all(8),
-      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-        maxCrossAxisExtent: 200,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2, // Show 2 products horizontally
         crossAxisSpacing: 8,
         mainAxisSpacing: 8,
         childAspectRatio: 0.7,
@@ -871,6 +871,81 @@ class _ProductsScreenState extends State<ProductsScreen>
     );
   }
 
+  // New method to build choice chips for mobile view
+  Widget _buildCategoryChoiceChips() {
+    final dark = Theme.of(context).brightness == Brightness.dark;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: _categories.map((category) {
+            final isSelected = _currentCategory == category['name'];
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4.0),
+              child: ChoiceChip(
+                label: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      category['icon'] as IconData,
+                      size: 16,
+                      color: isSelected ? Colors.white : TColors.primary,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      category['name'] as String,
+                      style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: isSelected
+                            ? Colors.white
+                            : dark
+                            ? TColors.white
+                            : TColors.black,
+                      ),
+                    ),
+                  ],
+                ),
+                selected: isSelected,
+                onSelected: (selected) {
+                  setState(() {
+                    _currentCategory = category['name'] as String;
+                    _selectedIndex = _categories.indexWhere(
+                      (cat) => cat['name'] == category['name'],
+                    );
+                    _tabController.index = _selectedIndex;
+                  });
+                  _fetchProducts(_currentCategory);
+                },
+                backgroundColor: dark
+                    ? TColors.darkContainer
+                    : TColors.lightContainer,
+                selectedColor: TColors.primary,
+                labelPadding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  side: BorderSide(
+                    color: isSelected
+                        ? TColors.primary
+                        : dark
+                        ? Colors.grey[700]!
+                        : Colors.grey[300]!,
+                    width: 1,
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+      ),
+    );
+  }
+
   Widget _buildMobileView() {
     final dark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
@@ -951,48 +1026,8 @@ class _ProductsScreenState extends State<ProductsScreen>
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              vertical: 8.0,
-              horizontal: 16.0,
-            ),
-            child: Container(
-              decoration: BoxDecoration(
-                color: dark ? TColors.darkContainer : TColors.lightContainer,
-                borderRadius: BorderRadius.circular(30),
-              ),
-              child: TabBar(
-                controller: _tabController,
-                isScrollable: true,
-                unselectedLabelColor: dark
-                    ? TColors.white.withOpacity(0.6)
-                    : TColors.darkGrey,
-                labelColor: TColors.white,
-                labelStyle: GoogleFonts.poppins(
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                ),
-                unselectedLabelStyle: GoogleFonts.poppins(fontSize: 10),
-                indicator: BoxDecoration(
-                  borderRadius: BorderRadius.circular(30),
-                  color: TColors.primary,
-                ),
-                indicatorSize: TabBarIndicatorSize.tab,
-                indicatorPadding: EdgeInsets.symmetric(
-                  horizontal: 5.0,
-                  vertical: 5.0,
-                ),
-                labelPadding: EdgeInsets.symmetric(horizontal: 8.0),
-                dividerColor: Colors.transparent,
-                tabs: _categories.map((category) {
-                  return Tab(
-                    icon: Icon(category['icon'] as IconData, size: 18),
-                    text: category['name'] as String,
-                  );
-                }).toList(),
-              ),
-            ),
-          ),
+          // Replaced TabBar with Choice Chips
+          _buildCategoryChoiceChips(),
           Expanded(
             child: RefreshIndicator(
               color: TColors.primary,
@@ -1036,8 +1071,8 @@ class _ProductsScreenState extends State<ProductsScreen>
                     )
                   : GridView.builder(
                       padding: EdgeInsets.all(8),
-                      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                        maxCrossAxisExtent: 200,
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2, // Show 2 products horizontally
                         crossAxisSpacing: 8,
                         mainAxisSpacing: 8,
                         childAspectRatio: 0.7,

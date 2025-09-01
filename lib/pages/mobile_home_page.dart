@@ -7,6 +7,7 @@ import 'package:shimmer/shimmer.dart';
 import '../utils/constants/colors.dart';
 import '../widgets/footer.dart';
 import 'product_detail_screen.dart';
+import 'dart:async';
 
 class MobileHomePage extends StatefulWidget {
   const MobileHomePage({super.key});
@@ -16,23 +17,16 @@ class MobileHomePage extends StatefulWidget {
 }
 
 class _MobileHomePageState extends State<MobileHomePage> {
-  final List<Map<String, String>> _carouselItems = [
-    {
-      'image': 'assets/images/dress.jpg',
-      'title': 'Elegant Dresses',
-      'description': 'Explore our stunning collection of dresses',
-    },
-    {
-      'image': 'assets/images/blouses.jpg',
-      'title': 'Chic Tops',
-      'description': 'Discover trendy tops and blouses',
-    },
-    {
-      'image': 'assets/images/accessories.jpg',
-      'title': 'Accessories',
-      'description': 'Complete your look with stylish accessories',
-    },
+  // Constants
+  static const _backgroundChangeDuration = Duration(seconds: 5);
+  final List<String> _backgroundImages = [
+    'assets/images/hydroponic_farm.jpg',
+    'assets/images/greenhouse.jpg',
+    'assets/images/farm_monitoring.jpg',
+    'assets/images/smart_farming.jpg',
   ];
+  int _currentBackgroundIndex = 0;
+  late Timer _backgroundTimer;
 
   final List<Map<String, dynamic>> _offerings = [
     {
@@ -91,8 +85,20 @@ class _MobileHomePageState extends State<MobileHomePage> {
   @override
   void initState() {
     super.initState();
+    _backgroundTimer = Timer.periodic(_backgroundChangeDuration, (timer) {
+      setState(() {
+        _currentBackgroundIndex =
+            (_currentBackgroundIndex + 1) % _backgroundImages.length;
+      });
+    });
     _fetchPopularProducts();
     _fetchFeaturedProducts();
+  }
+
+  @override
+  void dispose() {
+    _backgroundTimer.cancel();
+    super.dispose();
   }
 
   Future<void> _fetchPopularProducts() async {
@@ -181,7 +187,7 @@ class _MobileHomePageState extends State<MobileHomePage> {
 
   TextStyle _headlineLarge(BuildContext context) {
     return GoogleFonts.poppins(
-      fontSize: 22,
+      fontSize: 28,
       fontWeight: FontWeight.w700,
       color: TColors.white,
       height: 1.2,
@@ -190,7 +196,7 @@ class _MobileHomePageState extends State<MobileHomePage> {
 
   TextStyle _headlineMedium(BuildContext context) {
     return GoogleFonts.poppins(
-      fontSize: 18,
+      fontSize: 20,
       fontWeight: FontWeight.w600,
       color: Theme.of(context).textTheme.headlineMedium?.color,
       height: 1.3,
@@ -199,7 +205,7 @@ class _MobileHomePageState extends State<MobileHomePage> {
 
   TextStyle _bodyLarge(BuildContext context) {
     return GoogleFonts.openSans(
-      fontSize: 11,
+      fontSize: 14,
       color: TColors.white.withOpacity(0.9),
       height: 1.5,
     );
@@ -207,7 +213,7 @@ class _MobileHomePageState extends State<MobileHomePage> {
 
   TextStyle _bodyMedium(BuildContext context) {
     return GoogleFonts.openSans(
-      fontSize: 10,
+      fontSize: 12,
       color: TColors.textsecondary,
       height: 1.5,
     );
@@ -787,86 +793,116 @@ class _MobileHomePageState extends State<MobileHomePage> {
   }
 
   Widget _buildHeroSection() {
-    return Container(
-      height: MediaQuery.of(context).size.height * 0.7,
-      decoration: BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage(_carouselItems[0]['image']!),
-          fit: BoxFit.cover,
-          colorFilter: ColorFilter.mode(
-            Colors.black.withOpacity(0.6),
-            BlendMode.darken,
-          ),
-        ),
-      ),
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: _screenPadding),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+    return SizedBox(
+      height: MediaQuery.of(context).size.height * 0.8,
+      child: Stack(
+        children: [
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 1000),
+            transitionBuilder: (child, animation) {
+              return FadeTransition(opacity: animation, child: child);
+            },
+            child: Container(
+              key: ValueKey<int>(_currentBackgroundIndex),
               decoration: BoxDecoration(
-                color: TColors.primary.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Text(
-                'Welcome to MBB Agrotech',
-                style: GoogleFonts.poppins(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w600,
-                  color: TColors.white,
+                image: DecorationImage(
+                  image: AssetImage(_backgroundImages[_currentBackgroundIndex]),
+                  fit: BoxFit.cover,
+                  colorFilter: ColorFilter.mode(
+                    Colors.black.withOpacity(0.6),
+                    BlendMode.darken,
+                  ),
                 ),
               ),
             ),
-            SizedBox(height: _elementPadding * 2),
-            Text(
-              'Growing Smart,\nFeeding the Future',
-              style: _headlineLarge(context),
+          ),
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.black.withOpacity(0.6),
+                    Colors.black.withOpacity(0.2),
+                  ],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                ),
+              ),
             ),
-            SizedBox(height: _elementPadding * 2),
-            Text(
-              'A forward-thinking agricultural technology company dedicated to revolutionizing farming in Nigeria and beyond.',
-              style: _bodyLarge(context).copyWith(fontSize: 12),
-            ),
-            SizedBox(height: _elementPadding * 2),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: _screenPadding),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                _buildIndustryChip('Smart Farming'),
-                _buildIndustryChip('Hydroponics'),
-                _buildIndustryChip('Agro-Consulting'),
-              ],
-            ),
-            SizedBox(height: _elementPadding * 3),
-            Row(
-              children: [
-                _buildCtaButton('Explore Solutions', () {}),
-                SizedBox(width: 12),
-                OutlinedButton(
-                  onPressed: () {},
-                  style: OutlinedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                    side: BorderSide(color: TColors.white, width: 1.5),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: TColors.primary.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(16),
                   ),
                   child: Text(
-                    'Contact Us',
+                    'Welcome to MBB Agrotech',
                     style: GoogleFonts.poppins(
-                      fontSize: 12,
+                      fontSize: 10,
                       fontWeight: FontWeight.w600,
                       color: TColors.white,
                     ),
                   ),
                 ),
+                SizedBox(height: _elementPadding * 2),
+                Text(
+                  'Growing Smart,\nFeeding the Future',
+                  style: _headlineLarge(context),
+                ),
+                SizedBox(height: _elementPadding * 2),
+                Text(
+                  'A forward-thinking agricultural technology company dedicated to revolutionizing farming in Nigeria and beyond.',
+                  style: _bodyLarge(context).copyWith(fontSize: 12),
+                ),
+                SizedBox(height: _elementPadding * 2),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    _buildIndustryChip('Smart Farming'),
+                    _buildIndustryChip('Hydroponics'),
+                    _buildIndustryChip('Agro-Consulting'),
+                  ],
+                ),
+                SizedBox(height: _elementPadding * 3),
+                Row(
+                  children: [
+                    _buildCtaButton('Explore Solutions', () {}),
+                    SizedBox(width: 12),
+                    OutlinedButton(
+                      onPressed: () {},
+                      style: OutlinedButton.styleFrom(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
+                        side: BorderSide(color: TColors.white, width: 1.5),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Text(
+                        'Contact Us',
+                        style: GoogleFonts.poppins(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: TColors.white,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

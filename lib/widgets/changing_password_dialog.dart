@@ -70,7 +70,7 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
 
       CustomSnackbar.success(context, 'Password updated successfully.');
       Navigator.of(context).pop();
-    } on AuthException catch (e) {
+    } on AuthException {
     } catch (e) {
       CustomSnackbar.error(context, 'An unexpected error occurred.');
     } finally {

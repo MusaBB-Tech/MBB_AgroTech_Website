@@ -4,7 +4,6 @@ import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:animated_text_kit/animated_text_kit.dart';
 import '../utils/constants/colors.dart';
 import '../widgets/footer.dart';
 import 'product_detail_screen.dart';

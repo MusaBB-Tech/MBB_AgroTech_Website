@@ -1,5 +1,4 @@
 import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:mbb_agrotech_website/pages/admin_panel.dart';
@@ -27,13 +26,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
   final SupabaseClient _supabase = Supabase.instance.client;
   int _currentIndex = 0;
   String? _hoveredItem;
-  final Map<String, bool> _dropdownOpenStates = {
-    'Home': false,
-    'Products': false,
-    'Cart': false,
-    'Account': false,
-    'Admin': false,
-  };
+  final Map<String, bool> _dropdownOpenStates = {};
   bool _isThemeDropdownOpen = false;
   ThemeMode _currentThemeMode = ThemeMode.system;
   bool? _isAdmin;
@@ -174,7 +167,6 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
     super.initState();
     _supabase.auth.onAuthStateChange.listen((data) {
       _checkAdminStatus();
-      setState(() {});
     });
     _checkAdminStatus();
   }
@@ -191,7 +183,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
           _isAdmin = response['is_admin'] ?? false;
         });
       } catch (e) {
-        print('Error checking admin status: $e');
+        debugPrint('Error checking admin status');
         setState(() {
           _isAdmin = false;
         });
@@ -206,14 +198,8 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
   void _showSignInDialog() {
     showDialog(
       context: context,
-      builder: (context) => SizedBox(
-        width: 500,
-        child: SigningSignupDialog(
-          onSuccess: () {
-            Navigator.pop(context);
-          },
-        ),
-      ),
+      builder: (context) =>
+          SizedBox(width: 500, child: SigningSignupDialog(onSuccess: () {})),
     );
   }
 
@@ -225,7 +211,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
         _isAdmin = false;
       });
     } catch (e) {
-      CustomSnackbar.success(context, 'Sign-out failed:');
+      CustomSnackbar.error(context, 'Sign-out failed');
     }
   }
 
@@ -234,13 +220,10 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
   void _showDropdown(String label, RenderBox renderBox, double screenWidth) {
     if ((label == 'Cart' || label == 'Account' || label == 'Admin') &&
         !_isAuthenticated) {
-      CustomSnackbar.success(context, 'Please sign in to access this page');
-
+      CustomSnackbar.error(context, 'Please sign in to access this page');
       return;
     }
-    if (label == 'Admin' && _isAdmin != true) {
-      return;
-    }
+    if (label == 'Admin' && _isAdmin != true) return;
 
     _removeDropdown();
     final position = renderBox.localToGlobal(Offset.zero);
@@ -251,16 +234,14 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
       _currentDropdown = label;
     });
 
-    final dropdownWidth = screenWidth < 600
-        ? screenWidth * 0.9
-        : screenWidth < 1024
-        ? 280.0
-        : 280.0;
+    final dropdownWidth = screenWidth < 600 ? screenWidth * 0.9 : 280.0;
 
     _dropdownOverlay = OverlayEntry(
       builder: (context) => Positioned(
         left: screenWidth < 600 ? 16 : position.dx,
-        top: position.dy + size.height,
+        top: screenWidth < 600
+            ? position.dy + size.height + 10
+            : position.dy + size.height,
         width: dropdownWidth,
         child: Material(
           elevation: 0,
@@ -303,9 +284,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
     final position = renderBox.localToGlobal(Offset.zero);
     final size = renderBox.size;
 
-    setState(() {
-      _isThemeDropdownOpen = true;
-    });
+    setState(() => _isThemeDropdownOpen = true);
 
     final dropdownWidth = screenWidth < 600 ? screenWidth * 0.7 : 180.0;
 
@@ -425,24 +404,16 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
   }
 
   void _removeDropdown() {
-    if (_dropdownOverlay != null) {
-      _dropdownOverlay!.remove();
-      _dropdownOverlay = null;
-      _currentDropdown = null;
-      setState(() {
-        _dropdownOpenStates.updateAll((key, value) => false);
-      });
-    }
+    _dropdownOverlay?.remove();
+    _dropdownOverlay = null;
+    _currentDropdown = null;
+    setState(() => _dropdownOpenStates.clear());
   }
 
   void _removeThemeDropdown() {
-    if (_themeDropdownOverlay != null) {
-      _themeDropdownOverlay!.remove();
-      _themeDropdownOverlay = null;
-      setState(() {
-        _isThemeDropdownOpen = false;
-      });
-    }
+    _themeDropdownOverlay?.remove();
+    _themeDropdownOverlay = null;
+    setState(() => _isThemeDropdownOpen = false);
   }
 
   Widget _buildDropdownItem(Map<String, dynamic> item) {
@@ -460,8 +431,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
                 item['title'] == 'Saved Items' ||
                 item['title'] == 'Sign Out' ||
                 item['title'] == 'Admin Panel')) {
-          CustomSnackbar.success(context, 'Please sign in to access this page');
-
+          CustomSnackbar.error(context, 'Please sign in to access this page');
           return;
         }
 
@@ -526,160 +496,6 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
     );
   }
 
-  Widget _buildMobileDrawer() {
-    final dark =
-        _currentThemeMode == ThemeMode.dark ||
-        (_currentThemeMode == ThemeMode.system &&
-            MediaQuery.of(context).platformBrightness == Brightness.dark);
-
-    return Drawer(
-      backgroundColor: dark
-          ? Colors.black.withOpacity(0.8)
-          : Colors.white.withOpacity(0.8),
-      width: MediaQuery.of(context).size.width * 0.65,
-      child: ClipRRect(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-          child: ListView(
-            padding: EdgeInsets.zero,
-            children: [
-              DrawerHeader(
-                decoration: BoxDecoration(
-                  color: dark ? TColors.dark : TColors.primary.withOpacity(0.1),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        color: TColors.primary,
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: const Text(
-                        'MBB Agrotech',
-                        style: TextStyle(
-                          color: TColors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Growing Smart, Feeding the Future',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w500,
-                        fontSize: 16,
-                        color: dark ? TColors.white : TColors.textprimary,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    TextButton.icon(
-                      onPressed: _isAuthenticated
-                          ? _signOut
-                          : _showSignInDialog,
-                      icon: Icon(
-                        _isAuthenticated ? Iconsax.logout : Iconsax.login,
-                        color: dark ? TColors.white : TColors.textprimary,
-                        size: 20,
-                      ),
-                      label: Text(
-                        _isAuthenticated ? 'Logout' : 'Sign In',
-                        style: TextStyle(
-                          color: dark ? TColors.white : TColors.textprimary,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              ListTile(
-                leading: Icon(Iconsax.info_circle, color: TColors.primary),
-                title: const Text('About Us'),
-                onTap: () {
-                  Navigator.pop(context);
-                  setState(() => _currentIndex = 5);
-                },
-              ),
-              ..._dropdownItems.entries
-                  .where(
-                    (entry) =>
-                        _isAuthenticated ||
-                        (entry.key != 'Cart' &&
-                            entry.key != 'Account' &&
-                            entry.key != 'Admin'),
-                  )
-                  .where((entry) => entry.key != 'Admin' || _isAdmin == true)
-                  .map((entry) {
-                    return ExpansionTile(
-                      title: Text(
-                        entry.key,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: dark ? TColors.white : TColors.textprimary,
-                        ),
-                      ),
-                      children: entry.value.map((item) {
-                        return ListTile(
-                          leading: Icon(
-                            item['icon'],
-                            color: item['color'],
-                            size: 20,
-                          ),
-                          title: Text(
-                            item['title'],
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: dark ? TColors.white : TColors.textprimary,
-                            ),
-                          ),
-                          subtitle: Text(
-                            item['subtitle'],
-                            style: TextStyle(
-                              fontSize: 10,
-                              color: dark
-                                  ? TColors.white.withOpacity(0.7)
-                                  : TColors.textprimary.withOpacity(0.7),
-                            ),
-                          ),
-                          onTap: () {
-                            Navigator.pop(context);
-                            if (!_isAuthenticated &&
-                                (item['title'] == 'View Cart' ||
-                                    item['title'] == 'Checkout' ||
-                                    item['title'] == 'Profile' ||
-                                    item['title'] == 'Orders' ||
-                                    item['title'] == 'Saved Items' ||
-                                    item['title'] == 'Sign Out' ||
-                                    item['title'] == 'Admin Panel')) {
-                              CustomSnackbar.success(
-                                context,
-                                'Please sign in to access this page',
-                              );
-                              return;
-                            }
-                            switch (item['action']) {
-                              case 'navigate':
-                                setState(() => _currentIndex = item['index']);
-                                break;
-                              case 'signout':
-                                _signOut();
-                                break;
-                            }
-                          },
-                        );
-                      }).toList(),
-                    );
-                  }),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -701,23 +517,21 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
             key: _scaffoldKey,
             backgroundColor: dark ? TColors.dark : TColors.light,
             extendBody: true,
+            extendBodyBehindAppBar: true,
             appBar: isMobile
-                ? _buildMobileAppBar()
+                ? _buildMobileAppBar(dark)
                 : isTablet
-                ? _buildTabletAppBar()
-                : _buildDesktopAppBar(),
-            endDrawer: isMobile ? _buildMobileDrawer() : null,
+                ? _buildTabletAppBar(dark)
+                : _buildDesktopAppBar(dark),
             body: _pages[_currentIndex],
             bottomNavigationBar: isMobile
                 ? _buildBottomNavigationBar(dark)
                 : null,
             floatingActionButton: FloatingActionButton(
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (context) => const ContactUsDialog(),
-                );
-              },
+              onPressed: () => showDialog(
+                context: context,
+                builder: (context) => const ContactUsDialog(),
+              ),
               backgroundColor: TColors.primary,
               child: const Icon(Iconsax.message_text, color: TColors.white),
             ),
@@ -733,7 +547,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(30),
         child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+          filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 4),
             decoration: BoxDecoration(
@@ -766,21 +580,19 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
     return NavigationBarTheme(
       data: NavigationBarThemeData(
         labelTextStyle: WidgetStateProperty.resolveWith<TextStyle>((states) {
-          if (states.contains(WidgetState.selected)) {
-            return TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-              color: dark ? TColors.white : TColors.primary,
-            );
-          }
           return TextStyle(
             fontSize: 12,
-            color: dark ? TColors.softgrey : TColors.darkGrey,
+            fontWeight: states.contains(WidgetState.selected)
+                ? FontWeight.w500
+                : FontWeight.normal,
+            color: states.contains(WidgetState.selected)
+                ? (dark ? TColors.white : TColors.primary)
+                : (dark ? TColors.softgrey : TColors.darkGrey),
           );
         }),
         iconTheme: WidgetStateProperty.resolveWith<IconThemeData>((states) {
           return IconThemeData(
-            size: 20,
+            size: 24,
             color: states.contains(WidgetState.selected)
                 ? TColors.primary
                 : (dark ? TColors.softgrey : TColors.darkGrey),
@@ -788,24 +600,18 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
         }),
       ),
       child: NavigationBar(
-        height: 40,
+        height: 60,
         elevation: 0,
         backgroundColor: Colors.transparent,
         selectedIndex: _currentIndex,
         onDestinationSelected: (index) {
           if ((index == 2 || index == 3 || index == 4) && !_isAuthenticated) {
-            CustomSnackbar.success(
-              context,
-              'Please sign in to access this page',
-            );
+            CustomSnackbar.error(context, 'Please sign in to access this page');
             return;
           }
-          if (index == 4 && _isAdmin != true) {
-            return;
-          }
-          setState(() {
-            _currentIndex = index;
-          });
+          if (index == 4 && _isAdmin != true) return;
+
+          setState(() => _currentIndex = index);
         },
         indicatorShape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
@@ -821,53 +627,38 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
 
   List<NavigationDestination> _buildNavigationDestinations() {
     return [
-      const NavigationDestination(
-        icon: Icon(Iconsax.home),
-        selectedIcon: Icon(Iconsax.home),
-        label: 'Home',
-      ),
-      const NavigationDestination(
-        icon: Icon(Iconsax.shop),
-        selectedIcon: Icon(Iconsax.shop),
-        label: 'Products',
-      ),
+      const NavigationDestination(icon: Icon(Iconsax.home), label: 'Home'),
+      const NavigationDestination(icon: Icon(Iconsax.shop), label: 'Products'),
       if (_isAuthenticated)
         const NavigationDestination(
           icon: Icon(Iconsax.shopping_cart),
-          selectedIcon: Icon(Iconsax.shopping_cart),
           label: 'Cart',
         ),
       if (_isAuthenticated)
         const NavigationDestination(
           icon: Icon(Iconsax.profile_circle),
-          selectedIcon: Icon(Iconsax.profile_circle),
           label: 'Account',
         ),
       if (_isAuthenticated && _isAdmin == true)
         const NavigationDestination(
           icon: Icon(Iconsax.setting_2),
-          selectedIcon: Icon(Iconsax.setting_2),
           label: 'Admin',
         ),
       const NavigationDestination(
         icon: Icon(Iconsax.info_circle),
-        selectedIcon: Icon(Iconsax.info_circle),
         label: 'About Us',
       ),
     ];
   }
 
-  AppBar _buildDesktopAppBar() {
-    final dark =
-        _currentThemeMode == ThemeMode.dark ||
-        (_currentThemeMode == ThemeMode.system &&
-            MediaQuery.of(context).platformBrightness == Brightness.dark);
-
+  AppBar _buildDesktopAppBar(bool dark) {
     return AppBar(
-      backgroundColor: dark ? TColors.dark : TColors.light,
+      automaticallyImplyLeading: false,
+      toolbarHeight: 80,
+      flexibleSpace: _buildAppBarBackground(dark),
+      backgroundColor: Colors.transparent,
       elevation: 0,
       scrolledUnderElevation: 0,
-      toolbarHeight: 80,
       title: Row(
         children: [
           Container(
@@ -898,40 +689,22 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
           _buildNavItemWithDropdown('Admin', 4),
         _buildNavItemWithDropdown('About Us', 5),
         const SizedBox(width: 16),
-        TextButton.icon(
-          onPressed: _isAuthenticated ? _signOut : _showSignInDialog,
-          icon: Icon(
-            _isAuthenticated ? Iconsax.logout : Iconsax.login,
-            color: dark ? TColors.white : TColors.textprimary,
-            size: 20,
-          ),
-          label: Text(
-            _isAuthenticated ? 'Logout' : 'Sign In',
-            style: TextStyle(
-              color: dark ? TColors.white : TColors.textprimary,
-              fontSize: 14,
-            ),
-          ),
-        ),
+        _buildAuthButton(dark),
         const SizedBox(width: 16),
-        _buildThemeSwitcher(),
+        _buildThemeSwitcher(dark),
         const SizedBox(width: 24),
       ],
     );
   }
 
-  AppBar _buildTabletAppBar() {
-    final dark =
-        _currentThemeMode == ThemeMode.dark ||
-        (_currentThemeMode == ThemeMode.system &&
-            MediaQuery.of(context).platformBrightness == Brightness.dark);
-
+  AppBar _buildTabletAppBar(bool dark) {
     return AppBar(
-      backgroundColor: dark ? TColors.dark : TColors.light,
-      elevation: 0,
       automaticallyImplyLeading: false,
-      scrolledUnderElevation: 0,
       toolbarHeight: 70,
+      flexibleSpace: _buildAppBarBackground(dark),
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      scrolledUnderElevation: 0,
       title: Row(
         children: [
           Container(
@@ -962,33 +735,57 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
           _buildNavItemWithDropdown('Admin', 4),
         _buildNavItemWithDropdown('About Us', 5),
         const SizedBox(width: 16),
-        TextButton.icon(
-          onPressed: _isAuthenticated ? _signOut : _showSignInDialog,
-          icon: Icon(
-            _isAuthenticated ? Iconsax.logout : Iconsax.login,
-            color: dark ? TColors.white : TColors.textprimary,
-            size: 20,
-          ),
-          label: Text(
-            _isAuthenticated ? 'Logout' : 'Sign In',
-            style: TextStyle(
-              color: dark ? TColors.white : TColors.textprimary,
-              fontSize: 14,
-            ),
-          ),
-        ),
+        _buildAuthButton(dark),
         const SizedBox(width: 16),
-        _buildThemeSwitcher(),
+        _buildThemeSwitcher(dark),
         const SizedBox(width: 16),
       ],
     );
   }
 
-  Widget _buildThemeSwitcher() {
-    final dark =
-        _currentThemeMode == ThemeMode.dark ||
-        (_currentThemeMode == ThemeMode.system &&
-            MediaQuery.of(context).platformBrightness == Brightness.dark);
+  Widget _buildAppBarBackground(bool dark) {
+    return ClipRRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
+        child: Container(
+          decoration: BoxDecoration(
+            color: dark
+                ? Colors.black.withOpacity(0.8)
+                : Colors.white.withOpacity(0.95),
+            border: Border(
+              bottom: BorderSide(
+                color: dark
+                    ? Colors.white.withOpacity(0.2)
+                    : Colors.black.withOpacity(0.1),
+                width: 0.5,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAuthButton(bool dark) {
+    return TextButton.icon(
+      onPressed: _isAuthenticated ? _signOut : _showSignInDialog,
+      icon: Icon(
+        _isAuthenticated ? Iconsax.logout : Iconsax.login,
+        color: dark ? TColors.white : TColors.textprimary,
+        size: 20,
+      ),
+      label: Text(
+        _isAuthenticated ? 'Logout' : 'Sign In',
+        style: TextStyle(
+          color: dark ? TColors.white : TColors.textprimary,
+          fontSize: 14,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildThemeSwitcher([bool? dark]) {
+    final isDark = dark ?? THelperFunctions.isDarkMode(context);
 
     return Builder(
       builder: (context) {
@@ -1026,7 +823,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
               size: 20,
               color: _isThemeDropdownOpen
                   ? TColors.primary
-                  : dark
+                  : isDark
                   ? TColors.white
                   : TColors.textprimary,
             ),
@@ -1055,10 +852,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
           onExit: (_) {
             Future.delayed(const Duration(milliseconds: 200), () {
               if (_currentDropdown == label) {
-                setState(() {
-                  _hoveredItem = null;
-                  _dropdownOpenStates[label] = false;
-                });
+                setState(() => _hoveredItem = null);
                 _removeDropdown();
               }
             });
@@ -1075,10 +869,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
   }
 
   Widget _buildDesktopNavItem(String label, int index) {
-    final dark =
-        _currentThemeMode == ThemeMode.dark ||
-        (_currentThemeMode == ThemeMode.system &&
-            MediaQuery.of(context).platformBrightness == Brightness.dark);
+    final dark = THelperFunctions.isDarkMode(context);
     final isSelected = _currentIndex == index;
     final isHovered = _hoveredItem == label;
 
@@ -1089,18 +880,12 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
       child: GestureDetector(
         onTap: () {
           if ((index == 2 || index == 3 || index == 4) && !_isAuthenticated) {
-            CustomSnackbar.success(
-              context,
-              'Please sign in to access this page',
-            );
+            CustomSnackbar.error(context, 'Please sign in to access this page');
             return;
           }
-          if (index == 4 && _isAdmin != true) {
-            return;
-          }
-          setState(() {
-            _currentIndex = index;
-          });
+          if (index == 4 && _isAdmin != true) return;
+
+          setState(() => _currentIndex = index);
           _removeDropdown();
         },
         child: Container(
@@ -1124,16 +909,13 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
     );
   }
 
-  AppBar _buildMobileAppBar() {
-    final dark =
-        _currentThemeMode == ThemeMode.dark ||
-        (_currentThemeMode == ThemeMode.system &&
-            MediaQuery.of(context).platformBrightness == Brightness.dark);
-
+  AppBar _buildMobileAppBar(bool dark) {
     return AppBar(
-      backgroundColor: dark ? TColors.dark : TColors.light,
-      elevation: 0,
       automaticallyImplyLeading: false,
+      toolbarHeight: 70,
+      flexibleSpace: _buildAppBarBackground(dark),
+      backgroundColor: Colors.transparent,
+      elevation: 0,
       scrolledUnderElevation: 0,
       title: Row(
         children: [
@@ -1157,45 +939,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
         ],
       ),
       actions: [
-        IconButton(
-          icon: Icon(
-            Iconsax.info_circle,
-            color: dark ? TColors.white : TColors.textprimary,
-          ),
-          onPressed: () {
-            setState(() => _currentIndex = 5);
-          },
-        ),
-        Builder(
-          builder: (context) {
-            final key = GlobalKey();
-            return IconButton(
-              key: key,
-              icon: Icon(
-                _currentThemeMode == ThemeMode.light
-                    ? Iconsax.sun_1
-                    : _currentThemeMode == ThemeMode.dark
-                    ? Iconsax.moon
-                    : Iconsax.cpu,
-                color: dark ? TColors.white : TColors.textprimary,
-              ),
-              onPressed: () {
-                final renderBox =
-                    key.currentContext?.findRenderObject() as RenderBox?;
-                if (renderBox != null) {
-                  if (_isThemeDropdownOpen) {
-                    _removeThemeDropdown();
-                  } else {
-                    _showThemeDropdown(
-                      renderBox,
-                      MediaQuery.of(context).size.width,
-                    );
-                  }
-                }
-              },
-            );
-          },
-        ),
+        _buildThemeSwitcher(dark),
         if (!_isAuthenticated)
           TextButton.icon(
             onPressed: _showSignInDialog,
@@ -1213,14 +957,20 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
             ),
           ),
         if (_isAuthenticated)
-          IconButton(
+          TextButton.icon(
+            onPressed: _signOut,
             icon: Icon(
-              Iconsax.menu_1,
+              Iconsax.logout,
               color: dark ? TColors.white : TColors.textprimary,
+              size: 20,
             ),
-            onPressed: () {
-              _scaffoldKey.currentState?.openEndDrawer();
-            },
+            label: Text(
+              'Logout',
+              style: TextStyle(
+                color: dark ? TColors.white : TColors.textprimary,
+                fontSize: 14,
+              ),
+            ),
           ),
       ],
     );
