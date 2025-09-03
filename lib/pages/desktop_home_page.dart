@@ -1,15 +1,21 @@
-import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:mbb_agrotech_website/widgets/contact_us_dialog.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:shimmer/shimmer.dart';
-import 'package:carousel_slider/carousel_slider.dart';
-import '../utils/constants/colors.dart';
-import '../widgets/book_consultaion_dialog.dart';
-import '../widgets/footer.dart';
-import 'product_detail_screen.dart';
 import 'dart:async';
 import 'dart:math';
+
+// Flutter imports
+import 'package:flutter/material.dart';
+
+// Package imports
+import 'package:carousel_slider/carousel_slider.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:shimmer/shimmer.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+// Local imports
+import '../utils/constants/colors.dart';
+import '../widgets/book_consultaion_dialog.dart';
+import '../widgets/contact_us_dialog.dart';
+import '../widgets/footer.dart';
+import 'product_detail_screen.dart';
 
 class DesktopHomePage extends StatefulWidget {
   const DesktopHomePage({super.key});
@@ -40,7 +46,6 @@ class _DesktopHomePageState extends State<DesktopHomePage> {
   ];
   int _currentBackgroundIndex = 0;
   late Timer _backgroundTimer;
-
   List<Map<String, dynamic>> _popularProducts = [];
   List<Map<String, dynamic>> _newProducts = [];
   List<Map<String, dynamic>> _featuredProducts = [];
@@ -122,12 +127,7 @@ class _DesktopHomePageState extends State<DesktopHomePage> {
   @override
   void initState() {
     super.initState();
-    _backgroundTimer = Timer.periodic(_backgroundChangeDuration, (timer) {
-      setState(() {
-        _currentBackgroundIndex =
-            (_currentBackgroundIndex + 1) % _backgroundImages.length;
-      });
-    });
+    _startBackgroundTimer();
     _fetchPopularProducts();
     _fetchFeaturedProducts();
   }
@@ -138,6 +138,17 @@ class _DesktopHomePageState extends State<DesktopHomePage> {
     super.dispose();
   }
 
+  // Background image timer
+  void _startBackgroundTimer() {
+    _backgroundTimer = Timer.periodic(_backgroundChangeDuration, (timer) {
+      setState(() {
+        _currentBackgroundIndex =
+            (_currentBackgroundIndex + 1) % _backgroundImages.length;
+      });
+    });
+  }
+
+  // Data fetching methods
   Future<void> _fetchPopularProducts() async {
     try {
       final response = await _supabase
@@ -148,9 +159,7 @@ class _DesktopHomePageState extends State<DesktopHomePage> {
           .or('is_popular.eq.true,is_new.eq.true');
 
       setState(() {
-        final products = response
-            .map((product) => _parseProductData(product))
-            .toList();
+        final products = response.map(_parseProductData).toList();
         _popularProducts =
             products.where((p) => p['is_popular'] == true).toList()
               ..shuffle(Random());
@@ -159,9 +168,7 @@ class _DesktopHomePageState extends State<DesktopHomePage> {
         _isLoadingPopular = false;
       });
     } catch (e) {
-      setState(() {
-        _isLoadingPopular = false;
-      });
+      setState(() => _isLoadingPopular = false);
       _showErrorSnackbar('Error fetching products: $e');
     }
   }
@@ -176,15 +183,12 @@ class _DesktopHomePageState extends State<DesktopHomePage> {
           .eq('is_featured', true);
 
       setState(() {
-        _featuredProducts =
-            response.map((product) => _parseProductData(product)).toList()
-              ..shuffle(Random());
+        _featuredProducts = response.map(_parseProductData).toList()
+          ..shuffle(Random());
         _isLoadingFeatured = false;
       });
     } catch (e) {
-      setState(() {
-        _isLoadingFeatured = false;
-      });
+      setState(() => _isLoadingFeatured = false);
       _showErrorSnackbar('Error fetching featured products: $e');
     }
   }
@@ -192,21 +196,20 @@ class _DesktopHomePageState extends State<DesktopHomePage> {
   Map<String, dynamic> _parseProductData(Map<String, dynamic> product) {
     return {
       'id': product['id'],
-      'image1': product['image1'] as String? ?? '',
-      'image2': product['image2'] as String? ?? '',
-      'image3': product['image3'] as String? ?? '',
-      'name': product['name'] as String? ?? 'Unnamed Product',
+      'image1': product['image1'] ?? '',
+      'image2': product['image2'] ?? '',
+      'image3': product['image3'] ?? '',
+      'name': product['name'] ?? 'Unnamed Product',
       'price': product['price'] is num
           ? (product['price'] as num).toStringAsFixed(0)
           : product['price']?.toString() ?? '0',
       'rate': product['rating']?.toInt() ?? 0,
       'stock': product['stock']?.toString() ?? 'N/A',
-      'description':
-          product['description'] as String? ?? 'No description available',
-      'is_popular': product['is_popular'] as bool? ?? false,
-      'is_new': product['is_new'] as bool? ?? false,
-      'is_best': product['is_best'] as bool? ?? false,
-      'is_featured': product['is_featured'] as bool? ?? false,
+      'description': product['description'] ?? 'No description available',
+      'is_popular': product['is_popular'] ?? false,
+      'is_new': product['is_new'] ?? false,
+      'is_best': product['is_best'] ?? false,
+      'is_featured': product['is_featured'] ?? false,
     };
   }
 
@@ -220,69 +223,55 @@ class _DesktopHomePageState extends State<DesktopHomePage> {
   }
 
   // Text styles
-  TextStyle _headlineLarge(BuildContext context) {
-    return GoogleFonts.poppins(
-      fontSize: 52,
-      fontWeight: FontWeight.w800,
-      color: TColors.white,
-      height: 1.2,
-      letterSpacing: -0.5,
-    );
-  }
+  TextStyle _headlineLarge(BuildContext context) => GoogleFonts.poppins(
+    fontSize: 52,
+    fontWeight: FontWeight.w800,
+    color: TColors.white,
+    height: 1.2,
+    letterSpacing: -0.5,
+  );
 
-  TextStyle _headlineMedium(BuildContext context) {
-    return GoogleFonts.poppins(
-      fontSize: 40,
-      fontWeight: FontWeight.w700,
-      color: Theme.of(context).textTheme.headlineMedium?.color,
-      height: 1.3,
-      letterSpacing: -0.3,
-    );
-  }
+  TextStyle _headlineMedium(BuildContext context) => GoogleFonts.poppins(
+    fontSize: 40,
+    fontWeight: FontWeight.w700,
+    color: Theme.of(context).textTheme.headlineMedium?.color,
+    height: 1.3,
+    letterSpacing: -0.3,
+  );
 
-  TextStyle _headlineSmall(BuildContext context) {
-    return GoogleFonts.poppins(
-      fontSize: 28,
-      fontWeight: FontWeight.w700,
-      color: TColors.white,
-      height: 1.4,
-    );
-  }
+  TextStyle _headlineSmall(BuildContext context) => GoogleFonts.poppins(
+    fontSize: 28,
+    fontWeight: FontWeight.w700,
+    color: TColors.white,
+    height: 1.4,
+  );
 
-  TextStyle _titleLarge(BuildContext context) {
-    return GoogleFonts.poppins(
-      fontSize: 22,
-      fontWeight: FontWeight.w600,
-      color: _darkMode ? TColors.white : TColors.black,
-      height: 1.4,
-    );
-  }
+  TextStyle _titleLarge(BuildContext context) => GoogleFonts.poppins(
+    fontSize: 22,
+    fontWeight: FontWeight.w600,
+    color: _darkMode ? TColors.white : TColors.black,
+    height: 1.4,
+  );
 
-  TextStyle _bodyLarge(BuildContext context) {
-    return GoogleFonts.inter(
-      fontSize: 18,
-      color: TColors.white.withOpacity(0.9),
-      height: 1.6,
-      fontWeight: FontWeight.w400,
-    );
-  }
+  TextStyle _bodyLarge(BuildContext context) => GoogleFonts.inter(
+    fontSize: 18,
+    color: TColors.white.withOpacity(0.9),
+    height: 1.6,
+    fontWeight: FontWeight.w400,
+  );
 
-  TextStyle _bodyMedium(BuildContext context) {
-    return GoogleFonts.inter(
-      fontSize: 16,
-      color: TColors.white.withOpacity(0.9),
-      height: 1.6,
-      fontWeight: FontWeight.w400,
-    );
-  }
+  TextStyle _bodyMedium(BuildContext context) => GoogleFonts.inter(
+    fontSize: 16,
+    color: TColors.white.withOpacity(0.9),
+    height: 1.6,
+    fontWeight: FontWeight.w400,
+  );
 
-  TextStyle _labelLarge(BuildContext context) {
-    return GoogleFonts.poppins(
-      fontSize: 16,
-      fontWeight: FontWeight.w600,
-      color: TColors.white,
-    );
-  }
+  TextStyle _labelLarge(BuildContext context) => GoogleFonts.poppins(
+    fontSize: 16,
+    fontWeight: FontWeight.w600,
+    color: TColors.white,
+  );
 
   // Widget builders
   Widget _buildShimmerEffect() {
@@ -296,46 +285,44 @@ class _DesktopHomePageState extends State<DesktopHomePage> {
         childAspectRatio: 0.7,
       ),
       itemCount: 10,
-      itemBuilder: (context, index) {
-        return Shimmer.fromColors(
-          baseColor: _darkMode ? TColors.darkGrey : TColors.softgrey,
-          highlightColor: TColors.grey,
-          child: Card(
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: const BorderRadius.vertical(
-                        top: Radius.circular(16),
-                      ),
+      itemBuilder: (context, index) => Shimmer.fromColors(
+        baseColor: _darkMode ? TColors.darkGrey : TColors.softgrey,
+        highlightColor: TColors.grey,
+        child: Card(
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(16),
                     ),
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(width: 120, height: 16, color: Colors.white),
-                      const SizedBox(height: 8),
-                      Container(width: 80, height: 14, color: Colors.white),
-                      const SizedBox(height: 8),
-                      Container(width: 100, height: 14, color: Colors.white),
-                    ],
-                  ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(width: 120, height: 16, color: Colors.white),
+                    const SizedBox(height: 8),
+                    Container(width: 80, height: 14, color: Colors.white),
+                    const SizedBox(height: 8),
+                    Container(width: 100, height: 14, color: Colors.white),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 
@@ -351,18 +338,16 @@ class _DesktopHomePageState extends State<DesktopHomePage> {
         mainAxisExtent: 200,
       ),
       itemCount: 6,
-      itemBuilder: (context, index) {
-        return Shimmer.fromColors(
-          baseColor: _darkMode ? TColors.darkGrey : TColors.grey,
-          highlightColor: _darkMode ? TColors.grey : TColors.grey,
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-            ),
+      itemBuilder: (context, index) => Shimmer.fromColors(
+        baseColor: _darkMode ? TColors.darkGrey : TColors.grey,
+        highlightColor: _darkMode ? TColors.grey : TColors.grey,
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 
@@ -394,26 +379,22 @@ class _DesktopHomePageState extends State<DesktopHomePage> {
   }
 
   Widget _buildPlaceholderImage({double height = 100, double width = 100}) {
-    return SizedBox(
+    return Container(
       height: height,
       width: width,
-      child: Container(
-        color: Colors.grey[200],
-        child: Icon(Icons.image_not_supported, size: 30, color: TColors.grey),
-      ),
+      color: Colors.grey[200],
+      child: Icon(Icons.image_not_supported, size: 30, color: TColors.grey),
     );
   }
 
   Widget _buildVerticalProductItem(Map<String, dynamic> product) {
     return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ProductDetailsScreen(product: product),
-          ),
-        );
-      },
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ProductDetailsScreen(product: product),
+        ),
+      ),
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
@@ -496,24 +477,22 @@ class _DesktopHomePageState extends State<DesktopHomePage> {
 
   Widget _buildPopularProductCard(Map<String, dynamic> product) {
     return Card(
-      elevation: 2,
+      elevation: 0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       color: _darkMode ? TColors.darkContainer : TColors.lightContainer,
       child: InkWell(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ProductDetailsScreen(product: product),
-            ),
-          );
-        },
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ProductDetailsScreen(product: product),
+          ),
+        ),
         borderRadius: BorderRadius.circular(16),
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
             image: DecorationImage(
-              image: product['image1'] != null && product['image1'].isNotEmpty
+              image: product['image1']?.isNotEmpty == true
                   ? NetworkImage(product['image1'])
                   : const AssetImage('assets/images/placeholder.jpg')
                         as ImageProvider,
@@ -613,14 +592,12 @@ class _DesktopHomePageState extends State<DesktopHomePage> {
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: InkWell(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ProductDetailsScreen(product: product),
-            ),
-          );
-        },
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ProductDetailsScreen(product: product),
+          ),
+        ),
         borderRadius: BorderRadius.circular(16),
         child: Container(
           decoration: BoxDecoration(
@@ -732,7 +709,7 @@ class _DesktopHomePageState extends State<DesktopHomePage> {
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(0),
         side: BorderSide(
           color: _darkMode ? Colors.grey[800]! : Colors.grey[200]!,
           width: 1,
@@ -741,13 +718,13 @@ class _DesktopHomePageState extends State<DesktopHomePage> {
       color: _darkMode ? TColors.darkContainer : TColors.lightContainer,
       child: InkWell(
         onTap: () {},
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ClipRRect(
               borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(16),
+                top: Radius.circular(0),
               ),
               child: Container(
                 height: 180,
@@ -935,9 +912,8 @@ class _DesktopHomePageState extends State<DesktopHomePage> {
         children: [
           AnimatedSwitcher(
             duration: const Duration(milliseconds: 1000),
-            transitionBuilder: (child, animation) {
-              return FadeTransition(opacity: animation, child: child);
-            },
+            transitionBuilder: (child, animation) =>
+                FadeTransition(opacity: animation, child: child),
             child: Container(
               key: ValueKey<int>(_currentBackgroundIndex),
               decoration: BoxDecoration(
@@ -1023,12 +999,10 @@ class _DesktopHomePageState extends State<DesktopHomePage> {
                       _buildCtaButton('Explore Solutions', () {}),
                       const SizedBox(width: 16),
                       OutlinedButton(
-                        onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder: (context) => const ContactUsDialog(),
-                          );
-                        },
+                        onPressed: () => showDialog(
+                          context: context,
+                          builder: (context) => const ContactUsDialog(),
+                        ),
                         style: OutlinedButton.styleFrom(
                           side: BorderSide(color: TColors.white, width: 0.5),
                           shape: RoundedRectangleBorder(
@@ -1090,9 +1064,8 @@ class _DesktopHomePageState extends State<DesktopHomePage> {
                   childAspectRatio: 0.8,
                 ),
                 itemCount: _offerings.length,
-                itemBuilder: (context, index) {
-                  return _buildOfferingCard(_offerings[index]);
-                },
+                itemBuilder: (context, index) =>
+                    _buildOfferingCard(_offerings[index]),
               ),
             ],
           ),
@@ -1131,16 +1104,14 @@ class _DesktopHomePageState extends State<DesktopHomePage> {
               message: 'No products available at the moment',
             )
           else
-            SizedBox(
-              height: 500, // Fixed height for consistency
-              child: Row(
+            LayoutBuilder(
+              builder: (context, constraints) => Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // New Products Container
                   Expanded(
                     flex: 2,
                     child: Card(
-                      elevation: 4,
+                      elevation: 0,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20),
                       ),
@@ -1163,42 +1134,41 @@ class _DesktopHomePageState extends State<DesktopHomePage> {
                               ),
                             ),
                             const SizedBox(height: 16),
-                            Expanded(
-                              child: _newProducts.isEmpty
-                                  ? _buildEmptyState(
-                                      icon: Icons.new_releases,
-                                      message: 'No new products available',
-                                    )
-                                  : GridView.builder(
-                                      physics:
-                                          const NeverScrollableScrollPhysics(),
-                                      gridDelegate:
-                                          const SliverGridDelegateWithFixedCrossAxisCount(
-                                            crossAxisCount: 2,
-                                            crossAxisSpacing: 16,
-                                            mainAxisSpacing: 16,
-                                            childAspectRatio: 0.75,
-                                          ),
-                                      itemCount: min(4, _newProducts.length),
-                                      itemBuilder: (context, index) {
-                                        final product = _newProducts[index];
-                                        return _buildPopularProductCard(
-                                          product,
-                                        );
-                                      },
-                                    ),
-                            ),
+                            _newProducts.isEmpty
+                                ? _buildEmptyState(
+                                    icon: Icons.new_releases,
+                                    message: 'No new products available',
+                                  )
+                                : GridView.builder(
+                                    shrinkWrap: true,
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
+                                    gridDelegate:
+                                        SliverGridDelegateWithFixedCrossAxisCount(
+                                          crossAxisCount:
+                                              constraints.maxWidth > 600
+                                              ? 2
+                                              : 1,
+                                          crossAxisSpacing: 16,
+                                          mainAxisSpacing: 16,
+                                          childAspectRatio: 0.75,
+                                        ),
+                                    itemCount: min(4, _newProducts.length),
+                                    itemBuilder: (context, index) =>
+                                        _buildPopularProductCard(
+                                          _newProducts[index],
+                                        ),
+                                  ),
                           ],
                         ),
                       ),
                     ),
                   ),
                   const SizedBox(width: 24),
-                  // Popular Products Container
                   Expanded(
                     flex: 2,
                     child: Card(
-                      elevation: 4,
+                      elevation: 0,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20),
                       ),
@@ -1221,34 +1191,31 @@ class _DesktopHomePageState extends State<DesktopHomePage> {
                               ),
                             ),
                             const SizedBox(height: 16),
-                            Expanded(
-                              child: _popularProducts.isEmpty
-                                  ? _buildEmptyState(
-                                      icon: Icons.trending_up,
-                                      message: 'No popular products available',
-                                    )
-                                  : GridView.builder(
-                                      physics:
-                                          const NeverScrollableScrollPhysics(),
-                                      gridDelegate:
-                                          const SliverGridDelegateWithFixedCrossAxisCount(
-                                            crossAxisCount: 2,
-                                            crossAxisSpacing: 16,
-                                            mainAxisSpacing: 16,
-                                            childAspectRatio: 0.75,
-                                          ),
-                                      itemCount: min(
-                                        4,
-                                        _popularProducts.length,
-                                      ),
-                                      itemBuilder: (context, index) {
-                                        final product = _popularProducts[index];
-                                        return _buildPopularProductCard(
-                                          product,
-                                        );
-                                      },
-                                    ),
-                            ),
+                            _popularProducts.isEmpty
+                                ? _buildEmptyState(
+                                    icon: Icons.trending_up,
+                                    message: 'No popular products available',
+                                  )
+                                : GridView.builder(
+                                    shrinkWrap: true,
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
+                                    gridDelegate:
+                                        SliverGridDelegateWithFixedCrossAxisCount(
+                                          crossAxisCount:
+                                              constraints.maxWidth > 600
+                                              ? 2
+                                              : 1,
+                                          crossAxisSpacing: 16,
+                                          mainAxisSpacing: 16,
+                                          childAspectRatio: 0.75,
+                                        ),
+                                    itemCount: min(4, _popularProducts.length),
+                                    itemBuilder: (context, index) =>
+                                        _buildPopularProductCard(
+                                          _popularProducts[index],
+                                        ),
+                                  ),
                           ],
                         ),
                       ),
@@ -1306,10 +1273,8 @@ class _DesktopHomePageState extends State<DesktopHomePage> {
                             mainAxisExtent: 200,
                           ),
                       itemCount: _featuredProducts.length.clamp(0, 6),
-                      itemBuilder: (context, index) {
-                        final product = _featuredProducts[index];
-                        return _buildFeaturedProductCard(product);
-                      },
+                      itemBuilder: (context, index) =>
+                          _buildFeaturedProductCard(_featuredProducts[index]),
                     ),
             ],
           ),
@@ -1352,9 +1317,9 @@ class _DesktopHomePageState extends State<DesktopHomePage> {
                   autoPlayInterval: const Duration(seconds: 5),
                   viewportFraction: 0.33,
                 ),
-                items: _testimonials.map((testimonial) {
-                  return _buildTestimonialCard(testimonial);
-                }).toList(),
+                items: _testimonials
+                    .map((testimonial) => _buildTestimonialCard(testimonial))
+                    .toList(),
               ),
             ],
           ),
@@ -1435,7 +1400,6 @@ class _DesktopHomePageState extends State<DesktopHomePage> {
   @override
   Widget build(BuildContext context) {
     _darkMode = Theme.of(context).brightness == Brightness.dark;
-
     return CustomScrollView(
       slivers: [
         SliverToBoxAdapter(child: _buildHeroSection()),
