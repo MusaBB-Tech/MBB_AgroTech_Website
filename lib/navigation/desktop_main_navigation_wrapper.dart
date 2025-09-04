@@ -14,22 +14,34 @@ import '../utils/constants/colors.dart';
 import '../utils/helpers/helper_functions.dart';
 import '../widgets/contact_us_dialog.dart';
 
-class MainNavigationWrapper extends StatefulWidget {
-  const MainNavigationWrapper({super.key});
+class DesktopMainNavigationWrapper extends StatefulWidget {
+  final bool? isAdmin;
+  final bool isAuthenticated;
+  final SupabaseClient supabase;
+
+  const DesktopMainNavigationWrapper({
+    super.key,
+    required this.isAdmin,
+    required this.isAuthenticated,
+    required this.supabase,
+  });
 
   @override
-  State<MainNavigationWrapper> createState() => _MainNavigationWrapperState();
+  State<DesktopMainNavigationWrapper> createState() =>
+      _DesktopMainNavigationWrapperState();
 }
 
-class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
+class _DesktopMainNavigationWrapperState
+    extends State<DesktopMainNavigationWrapper> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  final SupabaseClient _supabase = Supabase.instance.client;
   int _currentIndex = 0;
   String? _hoveredItem;
   final Map<String, bool> _dropdownOpenStates = {};
   bool _isThemeDropdownOpen = false;
   ThemeMode _currentThemeMode = ThemeMode.system;
-  bool? _isAdmin;
+  OverlayEntry? _dropdownOverlay;
+  OverlayEntry? _themeDropdownOverlay;
+  String? _currentDropdown;
 
   final List<Widget> _pages = const [
     HomePage(),
@@ -158,43 +170,6 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
     ],
   };
 
-  OverlayEntry? _dropdownOverlay;
-  OverlayEntry? _themeDropdownOverlay;
-  String? _currentDropdown;
-
-  @override
-  void initState() {
-    super.initState();
-    _supabase.auth.onAuthStateChange.listen((data) {
-      _checkAdminStatus();
-    });
-    _checkAdminStatus();
-  }
-
-  Future<void> _checkAdminStatus() async {
-    if (_supabase.auth.currentUser != null) {
-      try {
-        final response = await _supabase
-            .from('profiles')
-            .select('is_admin')
-            .eq('id', _supabase.auth.currentUser!.id)
-            .single();
-        setState(() {
-          _isAdmin = response['is_admin'] ?? false;
-        });
-      } catch (e) {
-        debugPrint('Error checking admin status');
-        setState(() {
-          _isAdmin = false;
-        });
-      }
-    } else {
-      setState(() {
-        _isAdmin = false;
-      });
-    }
-  }
-
   void _showSignInDialog() {
     showDialog(
       context: context,
@@ -205,25 +180,22 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
 
   Future<void> _signOut() async {
     try {
-      await _supabase.auth.signOut();
+      await widget.supabase.auth.signOut();
       setState(() {
         _currentIndex = 0;
-        _isAdmin = false;
       });
     } catch (e) {
       CustomSnackbar.error(context, 'Sign-out failed');
     }
   }
 
-  bool get _isAuthenticated => _supabase.auth.currentUser != null;
-
   void _showDropdown(String label, RenderBox renderBox, double screenWidth) {
     if ((label == 'Cart' || label == 'Account' || label == 'Admin') &&
-        !_isAuthenticated) {
+        !widget.isAuthenticated) {
       CustomSnackbar.error(context, 'Please sign in to access this page');
       return;
     }
-    if (label == 'Admin' && _isAdmin != true) return;
+    if (label == 'Admin' && widget.isAdmin != true) return;
 
     _removeDropdown();
     final position = renderBox.localToGlobal(Offset.zero);
@@ -238,10 +210,8 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
 
     _dropdownOverlay = OverlayEntry(
       builder: (context) => Positioned(
-        left: screenWidth < 600 ? 16 : position.dx,
-        top: screenWidth < 600
-            ? position.dy + size.height + 10
-            : position.dy + size.height,
+        left: position.dx,
+        top: position.dy + size.height,
         width: dropdownWidth,
         child: Material(
           elevation: 0,
@@ -290,9 +260,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
 
     _themeDropdownOverlay = OverlayEntry(
       builder: (context) => Positioned(
-        right: screenWidth < 600
-            ? 16
-            : MediaQuery.of(context).size.width - position.dx - size.width,
+        right: MediaQuery.of(context).size.width - position.dx - size.width,
         top: position.dy + size.height,
         width: dropdownWidth,
         child: Material(
@@ -423,7 +391,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
       onTap: () {
         _removeDropdown();
 
-        if (!_isAuthenticated &&
+        if (!widget.isAuthenticated &&
             (item['title'] == 'View Cart' ||
                 item['title'] == 'Checkout' ||
                 item['title'] == 'Profile' ||
@@ -496,253 +464,6 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData.light(),
-      darkTheme: ThemeData.dark(),
-      themeMode: _currentThemeMode,
-      debugShowCheckedModeBanner: false,
-      home: LayoutBuilder(
-        builder: (context, constraints) {
-          final screenWidth = constraints.maxWidth;
-          final isMobile = screenWidth < 600;
-          final isTablet = screenWidth >= 600 && screenWidth < 1024;
-          final dark =
-              _currentThemeMode == ThemeMode.dark ||
-              (_currentThemeMode == ThemeMode.system &&
-                  MediaQuery.of(context).platformBrightness == Brightness.dark);
-
-          return Scaffold(
-            key: _scaffoldKey,
-            backgroundColor: dark ? TColors.dark : TColors.light,
-            extendBody: true,
-            extendBodyBehindAppBar: true,
-            appBar: isMobile
-                ? _buildMobileAppBar(dark)
-                : isTablet
-                ? _buildTabletAppBar(dark)
-                : _buildDesktopAppBar(dark),
-            body: _pages[_currentIndex],
-            bottomNavigationBar: isMobile
-                ? _buildBottomNavigationBar(dark)
-                : null,
-            floatingActionButton: FloatingActionButton(
-              onPressed: () => showDialog(
-                context: context,
-                builder: (context) => const ContactUsDialog(),
-              ),
-              backgroundColor: TColors.primary,
-              child: const Icon(Iconsax.message_text, color: TColors.white),
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildBottomNavigationBar(bool dark) {
-    return Container(
-      margin: const EdgeInsets.only(top: 10, bottom: 20, left: 16, right: 16),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(30),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
-          child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 4),
-            decoration: BoxDecoration(
-              color: dark
-                  ? TColors.dark.withOpacity(0.5)
-                  : TColors.light.withOpacity(0.5),
-              borderRadius: BorderRadius.circular(30),
-              border: Border.all(
-                color: dark
-                    ? Colors.white.withOpacity(0.2)
-                    : Colors.black.withOpacity(0.15),
-                width: 0.5,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 6,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: _buildNavigationBar(dark),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildNavigationBar(bool dark) {
-    return NavigationBarTheme(
-      data: NavigationBarThemeData(
-        labelTextStyle: WidgetStateProperty.resolveWith<TextStyle>((states) {
-          return TextStyle(
-            fontSize: 12,
-            fontWeight: states.contains(WidgetState.selected)
-                ? FontWeight.w500
-                : FontWeight.normal,
-            color: states.contains(WidgetState.selected)
-                ? (dark ? TColors.white : TColors.primary)
-                : (dark ? TColors.softgrey : TColors.darkGrey),
-          );
-        }),
-        iconTheme: WidgetStateProperty.resolveWith<IconThemeData>((states) {
-          return IconThemeData(
-            size: 24,
-            color: states.contains(WidgetState.selected)
-                ? TColors.primary
-                : (dark ? TColors.softgrey : TColors.darkGrey),
-          );
-        }),
-      ),
-      child: NavigationBar(
-        height: 60,
-        elevation: 0,
-        backgroundColor: Colors.transparent,
-        selectedIndex: _currentIndex,
-        onDestinationSelected: (index) {
-          if ((index == 2 || index == 3 || index == 4) && !_isAuthenticated) {
-            CustomSnackbar.error(context, 'Please sign in to access this page');
-            return;
-          }
-          if (index == 4 && _isAdmin != true) return;
-
-          setState(() => _currentIndex = index);
-        },
-        indicatorShape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
-        indicatorColor: dark
-            ? TColors.primary.withOpacity(0.3)
-            : TColors.primary.withOpacity(0.3),
-        labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-        destinations: _buildNavigationDestinations(),
-      ),
-    );
-  }
-
-  List<NavigationDestination> _buildNavigationDestinations() {
-    return [
-      const NavigationDestination(icon: Icon(Iconsax.home), label: 'Home'),
-      const NavigationDestination(icon: Icon(Iconsax.shop), label: 'Products'),
-      if (_isAuthenticated)
-        const NavigationDestination(
-          icon: Icon(Iconsax.shopping_cart),
-          label: 'Cart',
-        ),
-      if (_isAuthenticated)
-        const NavigationDestination(
-          icon: Icon(Iconsax.profile_circle),
-          label: 'Account',
-        ),
-      if (_isAuthenticated && _isAdmin == true)
-        const NavigationDestination(
-          icon: Icon(Iconsax.setting_2),
-          label: 'Admin',
-        ),
-      const NavigationDestination(
-        icon: Icon(Iconsax.info_circle),
-        label: 'About Us',
-      ),
-    ];
-  }
-
-  AppBar _buildDesktopAppBar(bool dark) {
-    return AppBar(
-      automaticallyImplyLeading: false,
-      toolbarHeight: 80,
-      flexibleSpace: _buildAppBarBackground(dark),
-      backgroundColor: Colors.transparent,
-      elevation: 0,
-      scrolledUnderElevation: 0,
-      title: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            child: Image.asset(
-              'assets/images/mbb_logo.png',
-              height: 60,
-              fit: BoxFit.contain,
-            ),
-          ),
-          const SizedBox(width: 5),
-          Text(
-            'MBB AgroTech',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: TColors.primary,
-            ),
-          ),
-        ],
-      ),
-      actions: [
-        _buildNavItemWithDropdown('Home', 0),
-        _buildNavItemWithDropdown('Products', 1),
-        if (_isAuthenticated) _buildNavItemWithDropdown('Cart', 2),
-        if (_isAuthenticated) _buildNavItemWithDropdown('Account', 3),
-        if (_isAuthenticated && _isAdmin == true)
-          _buildNavItemWithDropdown('Admin', 4),
-        _buildNavItemWithDropdown('About Us', 5),
-        const SizedBox(width: 16),
-        _buildAuthButton(dark),
-        const SizedBox(width: 16),
-        _buildThemeSwitcher(dark),
-        const SizedBox(width: 24),
-      ],
-    );
-  }
-
-  AppBar _buildTabletAppBar(bool dark) {
-    return AppBar(
-      automaticallyImplyLeading: false,
-      toolbarHeight: 70,
-      flexibleSpace: _buildAppBarBackground(dark),
-      backgroundColor: Colors.transparent,
-      elevation: 0,
-      scrolledUnderElevation: 0,
-      title: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            child: Image.asset(
-              'assets/images/mbb_logo.png',
-              height: 50,
-              fit: BoxFit.contain,
-            ),
-          ),
-          const SizedBox(width: 4),
-          Text(
-            'MBB Agrotech',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: TColors.primary,
-            ),
-          ),
-        ],
-      ),
-      actions: [
-        _buildNavItemWithDropdown('Home', 0),
-        _buildNavItemWithDropdown('Products', 1),
-        if (_isAuthenticated) _buildNavItemWithDropdown('Cart', 2),
-        if (_isAuthenticated) _buildNavItemWithDropdown('Account', 3),
-        if (_isAuthenticated && _isAdmin == true)
-          _buildNavItemWithDropdown('Admin', 4),
-        _buildNavItemWithDropdown('About Us', 5),
-        const SizedBox(width: 16),
-        _buildAuthButton(dark),
-        const SizedBox(width: 16),
-        _buildThemeSwitcher(dark),
-        const SizedBox(width: 16),
-      ],
-    );
-  }
-
   Widget _buildAppBarBackground(bool dark) {
     return ClipRRect(
       child: BackdropFilter(
@@ -768,14 +489,14 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
 
   Widget _buildAuthButton(bool dark) {
     return TextButton.icon(
-      onPressed: _isAuthenticated ? _signOut : _showSignInDialog,
+      onPressed: widget.isAuthenticated ? _signOut : _showSignInDialog,
       icon: Icon(
-        _isAuthenticated ? Iconsax.logout : Iconsax.login,
+        widget.isAuthenticated ? Iconsax.logout : Iconsax.login,
         color: dark ? TColors.white : TColors.textprimary,
         size: 20,
       ),
       label: Text(
-        _isAuthenticated ? 'Logout' : 'Sign In',
+        widget.isAuthenticated ? 'Logout' : 'Sign In',
         style: TextStyle(
           color: dark ? TColors.white : TColors.textprimary,
           fontSize: 14,
@@ -879,11 +600,12 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
       onExit: (_) => setState(() => _hoveredItem = null),
       child: GestureDetector(
         onTap: () {
-          if ((index == 2 || index == 3 || index == 4) && !_isAuthenticated) {
+          if ((index == 2 || index == 3 || index == 4) &&
+              !widget.isAuthenticated) {
             CustomSnackbar.error(context, 'Please sign in to access this page');
             return;
           }
-          if (index == 4 && _isAdmin != true) return;
+          if (index == 4 && widget.isAdmin != true) return;
 
           setState(() => _currentIndex = index);
           _removeDropdown();
@@ -909,70 +631,76 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
     );
   }
 
-  AppBar _buildMobileAppBar(bool dark) {
-    return AppBar(
-      automaticallyImplyLeading: false,
-      toolbarHeight: 70,
-      flexibleSpace: _buildAppBarBackground(dark),
-      backgroundColor: Colors.transparent,
-      elevation: 0,
-      scrolledUnderElevation: 0,
-      title: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            child: Image.asset(
-              'assets/images/mbb_logo.png',
-              height: 50,
-              fit: BoxFit.contain,
-            ),
+  @override
+  Widget build(BuildContext context) {
+    final dark =
+        _currentThemeMode == ThemeMode.dark ||
+        (_currentThemeMode == ThemeMode.system &&
+            MediaQuery.of(context).platformBrightness == Brightness.dark);
+
+    return MaterialApp(
+      theme: ThemeData.light(),
+      darkTheme: ThemeData.dark(),
+      themeMode: _currentThemeMode,
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        key: _scaffoldKey,
+        backgroundColor: dark ? TColors.dark : TColors.light,
+        extendBody: true,
+        extendBodyBehindAppBar: true,
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          toolbarHeight: 80,
+          flexibleSpace: _buildAppBarBackground(dark),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          scrolledUnderElevation: 0,
+          title: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                child: Image.asset(
+                  'assets/images/mbb_logo.png',
+                  height: 60,
+                  fit: BoxFit.contain,
+                ),
+              ),
+              const SizedBox(width: 5),
+              Text(
+                'MBB AgroTech',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: TColors.primary,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(width: 4),
-          Text(
-            'MBB Agrotech',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              color: TColors.primary,
-            ),
+          actions: [
+            _buildNavItemWithDropdown('Home', 0),
+            _buildNavItemWithDropdown('Products', 1),
+            if (widget.isAuthenticated) _buildNavItemWithDropdown('Cart', 2),
+            if (widget.isAuthenticated) _buildNavItemWithDropdown('Account', 3),
+            if (widget.isAuthenticated && widget.isAdmin == true)
+              _buildNavItemWithDropdown('Admin', 4),
+            _buildNavItemWithDropdown('About Us', 5),
+            const SizedBox(width: 16),
+            _buildAuthButton(dark),
+            const SizedBox(width: 16),
+            _buildThemeSwitcher(dark),
+            const SizedBox(width: 24),
+          ],
+        ),
+        body: _pages[_currentIndex],
+        floatingActionButton: FloatingActionButton(
+          onPressed: () => showDialog(
+            context: context,
+            builder: (context) => const ContactUsDialog(),
           ),
-        ],
+          backgroundColor: TColors.primary,
+          child: const Icon(Iconsax.message_text, color: TColors.white),
+        ),
       ),
-      actions: [
-        _buildThemeSwitcher(dark),
-        if (!_isAuthenticated)
-          TextButton.icon(
-            onPressed: _showSignInDialog,
-            icon: Icon(
-              Iconsax.login,
-              color: dark ? TColors.white : TColors.textprimary,
-              size: 20,
-            ),
-            label: Text(
-              'Sign In',
-              style: TextStyle(
-                color: dark ? TColors.white : TColors.textprimary,
-                fontSize: 14,
-              ),
-            ),
-          ),
-        if (_isAuthenticated)
-          TextButton.icon(
-            onPressed: _signOut,
-            icon: Icon(
-              Iconsax.logout,
-              color: dark ? TColors.white : TColors.textprimary,
-              size: 20,
-            ),
-            label: Text(
-              'Logout',
-              style: TextStyle(
-                color: dark ? TColors.white : TColors.textprimary,
-                fontSize: 14,
-              ),
-            ),
-          ),
-      ],
     );
   }
 }

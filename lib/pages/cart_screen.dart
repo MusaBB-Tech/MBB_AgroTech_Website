@@ -584,28 +584,6 @@ class _CartScreenState extends State<CartScreen> {
               color: dark ? TColors.white.withOpacity(0.7) : TColors.grey,
             ),
           ),
-          const SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: TColors.primary,
-              foregroundColor: Colors.white,
-              padding: EdgeInsets.symmetric(
-                horizontal: isMobile ? 32 : 48,
-                vertical: isMobile ? 16 : 20,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30),
-              ),
-            ),
-            child: Text(
-              'Continue Shopping',
-              style: GoogleFonts.poppins(
-                fontSize: isMobile ? 16 : 18,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
         ],
       ),
     );
@@ -793,13 +771,6 @@ class _CartScreenState extends State<CartScreen> {
                     centerTitle: true,
                     backgroundColor: dark ? TColors.dark : TColors.light,
                     elevation: 0,
-                    leading: IconButton(
-                      icon: Icon(
-                        Iconsax.arrow_left,
-                        color: dark ? TColors.white : TColors.black,
-                      ),
-                      onPressed: () => Navigator.pop(context),
-                    ),
                   ),
                 Expanded(
                   child: _isLoading

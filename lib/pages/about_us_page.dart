@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../utils/constants/colors.dart';
 import '../responsive.dart';
 
@@ -38,7 +39,7 @@ class AboutUsScreen extends StatelessWidget {
         ? 28
         : isTablet
         ? 24
-        : 22;
+        : 20;
     final double teamAvatarSize = isDesktop
         ? 80
         : isTablet
@@ -57,224 +58,256 @@ class AboutUsScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: dark ? TColors.dark : TColors.light,
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: isMobile ? screenPadding : screenPadding * 1.5,
+      appBar: AppBar(
+        titleSpacing: 16,
+        scrolledUnderElevation: 0,
+        leading: IconButton(
+          padding: const EdgeInsets.all(8),
+          icon: Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: dark ? TColors.darkContainer : TColors.lightContainer,
+              border: Border.all(
+                color: dark
+                    ? Colors.white.withOpacity(0.1)
+                    : Colors.black.withOpacity(0.1),
+                width: 0.5,
+              ),
+            ),
+            child: Icon(
+              Iconsax.arrow_left_2,
+              size: 20,
+              color: dark ? Colors.white : Colors.black,
+            ),
           ),
-          child: Column(
-            children: [
-              SizedBox(height: screenPadding),
-              // Mission Section
-              _buildSection(
-                context,
-                icon: Iconsax.blur,
-                title: 'Our Mission',
-                content:
-                    'At HydroGrow, we believe in revolutionizing agriculture through sustainable hydroponic solutions. Our mission is to make urban farming accessible to everyone, reducing water usage by up to 90% compared to traditional farming while delivering fresh, pesticide-free produce year-round.',
-                dark: dark,
-                screenPadding: screenPadding,
-                titleFontSize: titleFontSize,
-                textFontSize: textFontSize,
-                iconSize: iconSize,
-              ),
-              SizedBox(height: sectionSpacing),
-
-              // Team Section
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(
-                        Iconsax.people,
-                        color: TColors.primary,
-                        size: iconSize,
-                      ),
-                      SizedBox(width: screenPadding * 0.5),
-                      Text(
-                        'Our Team',
-                        style: GoogleFonts.poppins(
-                          fontSize: titleFontSize,
-                          fontWeight: FontWeight.w600,
-                          color: dark ? TColors.white : TColors.black,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: screenPadding),
-                  Text(
-                    'We are a passionate team of agricultural engineers, sustainability experts, and tech enthusiasts dedicated to making hydroponic farming accessible to everyone.',
-                    style: GoogleFonts.poppins(
-                      fontSize: textFontSize,
-                      color: dark ? TColors.lightgrey : TColors.darkGrey,
-                      height: 1.6,
-                    ),
-                    textAlign: TextAlign.justify,
-                  ),
-                  SizedBox(height: screenPadding),
-                  SizedBox(
-                    height: teamAvatarSize * 1.8,
-                    child: ListView(
-                      scrollDirection: Axis.horizontal,
-                      children: [
-                        _buildTeamMember(
-                          'assets/images/team1.jpg',
-                          'Alex',
-                          'Founder',
-                          dark,
-                          teamAvatarSize,
-                          textFontSize,
-                        ),
-                        SizedBox(width: screenPadding),
-                        _buildTeamMember(
-                          'assets/images/team2.jpg',
-                          'Sarah',
-                          'Lead Engineer',
-                          dark,
-                          teamAvatarSize,
-                          textFontSize,
-                        ),
-                        SizedBox(width: screenPadding),
-                        _buildTeamMember(
-                          'assets/images/team3.jpg',
-                          'Jamal',
-                          'Agronomist',
-                          dark,
-                          teamAvatarSize,
-                          textFontSize,
-                        ),
-                        if (isDesktop) SizedBox(width: screenPadding),
-                        if (isDesktop)
-                          _buildTeamMember(
-                            'assets/images/team4.jpg',
-                            'Maria',
-                            'Marketing',
-                            dark,
-                            teamAvatarSize,
-                            textFontSize,
-                          ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: sectionSpacing),
-
-              // Values Section
-              _buildSection(
-                context,
-                icon: Iconsax.like_shapes,
-                title: 'Our Values',
-                content: '',
-                dark: dark,
-                screenPadding: screenPadding,
-                titleFontSize: titleFontSize,
-                textFontSize: textFontSize,
-                iconSize: iconSize,
-                children: [
-                  _buildValueItem(
-                    context,
-                    'Sustainability',
-                    'We prioritize eco-friendly solutions that minimize environmental impact.',
-                    Iconsax.blur,
-                    dark,
-                    screenPadding,
-                    textFontSize,
-                  ),
-                  _buildValueItem(
-                    context,
-                    'Innovation',
-                    'Constantly developing new technologies to improve urban farming.',
-                    Iconsax.cpu,
-                    dark,
-                    screenPadding,
-                    textFontSize,
-                  ),
-                  _buildValueItem(
-                    context,
-                    'Community',
-                    'Building a network of urban farmers sharing knowledge and produce.',
-                    Iconsax.people,
-                    dark,
-                    screenPadding,
-                    textFontSize,
-                  ),
-                ],
-              ),
-              SizedBox(height: sectionSpacing),
-
-              // Contact CTA
-              Container(
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        title: Text(
+          'About Us',
+          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+            fontSize: titleFontSize,
+            fontWeight: FontWeight.w700,
+            color: dark ? Colors.white : TColors.black,
+          ),
+        ),
+        backgroundColor: dark ? TColors.dark : TColors.light,
+        elevation: 0,
+      ),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.symmetric(
+          horizontal: isMobile ? screenPadding : screenPadding * 1.5,
+          vertical: screenPadding,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
                 padding: EdgeInsets.all(screenPadding),
                 decoration: BoxDecoration(
-                  color: dark ? TColors.darkContainer : TColors.lightContainer,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: TColors.primary.withOpacity(0.3)),
+                  shape: BoxShape.circle,
+                  gradient: LinearGradient(
+                    colors: dark
+                        ? [
+                            TColors.primary.withOpacity(0.3),
+                            TColors.primary.withOpacity(0.1),
+                          ]
+                        : [
+                            TColors.primary.withOpacity(0.2),
+                            TColors.primary.withOpacity(0.05),
+                          ],
+                  ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 12,
-                      offset: Offset(0, 4),
+                      color: Colors.black.withOpacity(dark ? 0.1 : 0.05),
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
                     ),
                   ],
                 ),
+                child: Icon(
+                  Iconsax.blur,
+                  size: iconSize * 1.5,
+                  color: TColors.primary,
+                ),
+              ),
+            ),
+            SizedBox(height: sectionSpacing),
+            // Mission Section
+            Card(
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+                side: BorderSide(
+                  color: dark
+                      ? Colors.white.withOpacity(0.1)
+                      : Colors.black.withOpacity(0.1),
+                  width: 0.5,
+                ),
+              ),
+              color: dark ? TColors.darkContainer : TColors.lightContainer,
+              child: Padding(
+                padding: EdgeInsets.all(screenPadding),
+                child: _buildSection(
+                  context,
+                  icon: Iconsax.blur,
+                  title: 'Our Mission',
+                  content:
+                      'At HydroGrow, we believe in revolutionizing agriculture through sustainable hydroponic solutions. Our mission is to make urban farming accessible to everyone, reducing water usage by up to 90% compared to traditional farming while delivering fresh, pesticide-free produce year-round.',
+                  dark: dark,
+                  titleFontSize: titleFontSize,
+                  textFontSize: textFontSize,
+                  iconSize: iconSize,
+                ),
+              ),
+            ),
+            SizedBox(height: sectionSpacing),
+            // Team Section
+            Card(
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+                side: BorderSide(
+                  color: dark
+                      ? Colors.white.withOpacity(0.1)
+                      : Colors.black.withOpacity(0.1),
+                  width: 0.5,
+                ),
+              ),
+              color: dark ? TColors.darkContainer : TColors.lightContainer,
+              child: Padding(
+                padding: EdgeInsets.all(screenPadding),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Want to learn more about hydroponics?',
-                      style: GoogleFonts.poppins(
-                        fontSize: titleFontSize,
-                        fontWeight: FontWeight.w600,
-                        color: dark ? TColors.white : TColors.black,
-                      ),
-                      textAlign: TextAlign.center,
+                    _buildSectionHeader(
+                      context,
+                      icon: Iconsax.people,
+                      title: 'Our Team',
+                      dark: dark,
+                      titleFontSize: titleFontSize,
                     ),
-                    SizedBox(height: screenPadding * 0.8),
+                    SizedBox(height: screenPadding),
                     Text(
-                      'Contact our team of experts for personalized advice on setting up your hydroponic system.',
+                      'We are a passionate team of agricultural engineers, sustainability experts, and tech enthusiasts dedicated to making hydroponic farming accessible to everyone.',
                       style: GoogleFonts.poppins(
                         fontSize: textFontSize,
                         color: dark ? TColors.lightgrey : TColors.darkGrey,
                         height: 1.6,
                       ),
-                      textAlign: TextAlign.center,
+                      textAlign: TextAlign.justify,
                     ),
-                    SizedBox(height: screenPadding * 1.5),
+                    SizedBox(height: screenPadding),
                     SizedBox(
-                      width: isMobile ? double.infinity : null,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          // Add contact functionality
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: TColors.primary,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
+                      height: teamAvatarSize * 1.8,
+                      child: ListView(
+                        scrollDirection: Axis.horizontal,
+                        children: [
+                          _buildTeamMember(
+                            'assets/images/team1.jpg',
+                            'Alex',
+                            'Founder',
+                            dark,
+                            teamAvatarSize,
+                            textFontSize,
                           ),
-                          padding: EdgeInsets.symmetric(
-                            horizontal: screenPadding * 2,
-                            vertical: buttonHeight * 0.5,
+                          SizedBox(width: screenPadding),
+                          _buildTeamMember(
+                            'assets/images/team2.jpg',
+                            'Sarah',
+                            'Lead Engineer',
+                            dark,
+                            teamAvatarSize,
+                            textFontSize,
                           ),
-                          elevation: 0,
-                          shadowColor: Colors.black.withOpacity(0.1),
-                        ),
-                        child: Text(
-                          'Contact Us',
-                          style: GoogleFonts.poppins(
-                            fontSize: buttonFontSize,
-                            fontWeight: FontWeight.w600,
+                          SizedBox(width: screenPadding),
+                          _buildTeamMember(
+                            'assets/images/team3.jpg',
+                            'Jamal',
+                            'Agronomist',
+                            dark,
+                            teamAvatarSize,
+                            textFontSize,
                           ),
-                        ),
+                          if (isDesktop) SizedBox(width: screenPadding),
+                          if (isDesktop)
+                            _buildTeamMember(
+                              'assets/images/team4.jpg',
+                              'Maria',
+                              'Marketing',
+                              dark,
+                              teamAvatarSize,
+                              textFontSize,
+                            ),
+                        ],
                       ),
                     ),
                   ],
                 ),
               ),
-              SizedBox(height: screenPadding * 1.5),
-            ],
-          ),
+            ),
+            SizedBox(height: sectionSpacing),
+            // Values Section
+            Card(
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+                side: BorderSide(
+                  color: dark
+                      ? Colors.white.withOpacity(0.1)
+                      : Colors.black.withOpacity(0.1),
+                  width: 0.5,
+                ),
+              ),
+              color: dark ? TColors.darkContainer : TColors.lightContainer,
+              child: Padding(
+                padding: EdgeInsets.all(screenPadding),
+                child: _buildSection(
+                  context,
+                  icon: Iconsax.like_shapes,
+                  title: 'Our Values',
+                  content: '',
+                  dark: dark,
+                  titleFontSize: titleFontSize,
+                  textFontSize: textFontSize,
+                  iconSize: iconSize,
+                  children: [
+                    _buildValueItem(
+                      context,
+                      'Sustainability',
+                      'We prioritize eco-friendly solutions that minimize environmental impact.',
+                      Iconsax.blur,
+                      dark,
+                      screenPadding,
+                      textFontSize,
+                    ),
+                    _buildValueItem(
+                      context,
+                      'Innovation',
+                      'Constantly developing new technologies to improve urban farming.',
+                      Iconsax.cpu,
+                      dark,
+                      screenPadding,
+                      textFontSize,
+                    ),
+                    _buildValueItem(
+                      context,
+                      'Community',
+                      'Building a network of urban farmers sharing knowledge and produce.',
+                      Iconsax.people,
+                      dark,
+                      screenPadding,
+                      textFontSize,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            SizedBox(height: 100),
+          ],
         ),
       ),
     );
@@ -286,7 +319,6 @@ class AboutUsScreen extends StatelessWidget {
     required String title,
     required String content,
     required bool dark,
-    required double screenPadding,
     required double titleFontSize,
     required double textFontSize,
     required double iconSize,
@@ -295,21 +327,15 @@ class AboutUsScreen extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Icon(icon, color: TColors.primary, size: iconSize),
-            SizedBox(width: screenPadding * 0.5),
-            Text(
-              title,
-              style: GoogleFonts.poppins(
-                fontSize: titleFontSize,
-                fontWeight: FontWeight.w600,
-                color: dark ? TColors.white : TColors.black,
-              ),
-            ),
-          ],
-        ),
-        SizedBox(height: screenPadding),
+        if (content.isNotEmpty)
+          _buildSectionHeader(
+            context,
+            icon: icon,
+            title: title,
+            dark: dark,
+            titleFontSize: titleFontSize,
+          ),
+        if (content.isNotEmpty) SizedBox(height: 16),
         if (content.isNotEmpty)
           Text(
             content,
@@ -322,6 +348,62 @@ class AboutUsScreen extends StatelessWidget {
           ),
         ...children,
       ],
+    );
+  }
+
+  Widget _buildSectionHeader(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required bool dark,
+    required double titleFontSize,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: dark
+              ? [
+                  TColors.primary.withOpacity(0.2),
+                  TColors.primary.withOpacity(0.1),
+                ]
+              : [
+                  TColors.primary.withOpacity(0.15),
+                  TColors.primary.withOpacity(0.05),
+                ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(dark ? 0.1 : 0.05),
+            blurRadius: 6,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: TColors.primary.withOpacity(0.15),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, size: 24, color: TColors.primary),
+          ),
+          const SizedBox(width: 16),
+          Text(
+            title,
+            style: GoogleFonts.poppins(
+              fontSize: titleFontSize,
+              fontWeight: FontWeight.w700,
+              color: dark ? Colors.white : TColors.black,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -410,5 +492,74 @@ class AboutUsScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Widget _buildContactItem(
+    BuildContext context,
+    IconData icon,
+    String text,
+    bool dark, {
+    VoidCallback? onTap,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            color: onTap != null
+                ? (dark ? TColors.dark : TColors.light)
+                : Colors.transparent,
+            boxShadow: onTap != null
+                ? [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(dark ? 0.1 : 0.05),
+                      blurRadius: 6,
+                      offset: const Offset(0, 3),
+                    ),
+                  ]
+                : null,
+          ),
+          child: Row(
+            children: [
+              Icon(
+                icon,
+                size: 20,
+                color: dark ? Colors.white70 : TColors.darkGrey,
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Text(
+                  text,
+                  style: GoogleFonts.poppins(
+                    fontSize: 15,
+                    fontWeight: onTap != null
+                        ? FontWeight.w600
+                        : FontWeight.normal,
+                    color: dark ? Colors.white70 : TColors.darkGrey,
+                  ),
+                ),
+              ),
+              if (onTap != null)
+                Icon(
+                  Iconsax.arrow_right_3,
+                  size: 18,
+                  color: dark ? Colors.white54 : TColors.darkGrey,
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _launchUrl(String url) async {
+    final Uri uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
   }
 }

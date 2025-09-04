@@ -960,19 +960,8 @@ class _ProductsScreenState extends State<ProductsScreen>
         ),
         elevation: 0,
         centerTitle: true,
+        scrolledUnderElevation: 0,
         backgroundColor: dark ? TColors.dark : TColors.light,
-        actions: [
-          IconButton(
-            icon: Icon(
-              Iconsax.shopping_cart,
-              color: dark ? TColors.white : TColors.black,
-            ),
-            onPressed: () {
-              // Navigate to cart screen
-            },
-          ),
-          SizedBox(width: 8),
-        ],
       ),
       backgroundColor: dark ? TColors.dark : TColors.light,
       body: Column(

@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
+import 'package:mbb_agrotech_website/utils/showSnackBar.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -36,6 +37,8 @@ class _MobileHomePageState extends State<MobileHomePage> {
   ];
   int _currentBackgroundIndex = 0;
   late Timer _backgroundTimer;
+  final ScrollController _scrollController = ScrollController();
+  bool _showScrollToTop = false;
 
   final List<Map<String, dynamic>> _offerings = [
     {
@@ -113,6 +116,7 @@ class _MobileHomePageState extends State<MobileHomePage> {
   bool _isLoadingPopular = true;
   bool _isLoadingFeatured = true;
   final SupabaseClient _supabase = Supabase.instance.client;
+  final Map<String, dynamic> _navigationHistory = {};
 
   // Standard padding values for mobile
   final double _screenPadding = 16.0;
@@ -129,6 +133,20 @@ class _MobileHomePageState extends State<MobileHomePage> {
             (_currentBackgroundIndex + 1) % _backgroundImages.length;
       });
     });
+
+    // Initialize scroll controller listener for scroll-to-top button
+    _scrollController.addListener(() {
+      if (_scrollController.offset > 300 && !_showScrollToTop) {
+        setState(() {
+          _showScrollToTop = true;
+        });
+      } else if (_scrollController.offset <= 300 && _showScrollToTop) {
+        setState(() {
+          _showScrollToTop = false;
+        });
+      }
+    });
+
     _fetchPopularProducts();
     _fetchFeaturedProducts();
   }
@@ -136,6 +154,12 @@ class _MobileHomePageState extends State<MobileHomePage> {
   @override
   void dispose() {
     _backgroundTimer.cancel();
+    _scrollController.dispose();
+    // Clear cached data for memory management
+    _popularProducts.clear();
+    _newProducts.clear();
+    _featuredProducts.clear();
+    _navigationHistory.clear();
     super.dispose();
   }
 
@@ -163,9 +187,7 @@ class _MobileHomePageState extends State<MobileHomePage> {
       });
       debugPrint('Error fetching popular products: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error fetching popular products: $e')),
-        );
+        CustomSnackbar.error(context, 'Error fetching popular products');
       }
     }
   }
@@ -190,9 +212,7 @@ class _MobileHomePageState extends State<MobileHomePage> {
       });
       debugPrint('Error fetching featured products: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error fetching featured products: $e')),
-        );
+        CustomSnackbar.error(context, 'Error fetching featured products');
       }
     }
   }
@@ -362,9 +382,7 @@ class _MobileHomePageState extends State<MobileHomePage> {
     final userId = _supabase.auth.currentUser?.id;
     if (userId == null) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please sign in to add to cart')),
-        );
+        CustomSnackbar.warning(context, 'Please sign in to add to cart');
       }
       return;
     }
@@ -379,16 +397,12 @@ class _MobileHomePageState extends State<MobileHomePage> {
         'quantity': 1,
       });
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Added to cart')));
+        CustomSnackbar.success(context, 'Added to cart');
       }
     } catch (e) {
       debugPrint('Error adding to cart: $e');
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error adding to cart: $e')));
+        CustomSnackbar.error(context, 'Error adding to cart');
       }
     }
   }
@@ -581,7 +595,7 @@ class _MobileHomePageState extends State<MobileHomePage> {
                   SizedBox(height: _elementPadding * 0.5),
                   Text(
                     product['description'],
-                    style: GoogleFonts.openSans(
+                    style: GoogleFonts.poppins(
                       fontSize: 9,
                       color: TColors.white.withOpacity(0.9),
                     ),
@@ -635,114 +649,123 @@ class _MobileHomePageState extends State<MobileHomePage> {
       ),
       color: dark ? TColors.darkContainer : TColors.lightContainer,
       child: InkWell(
-        onTap: () {},
+        onTap: () => _handleCardTap(offering),
         borderRadius: BorderRadius.circular(0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [_buildCardImage(offering), _buildCardContent(offering)],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCardImage(Map<String, dynamic> offering) {
+    return ClipRRect(
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(0)),
+      child: Container(
+        height: 160,
+        color: Colors.grey[200],
+        child: Stack(
           children: [
-            ClipRRect(
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(0),
+            if (offering['image'] != null)
+              Image.asset(
+                offering['image'],
+                height: 160,
+                width: double.infinity,
+                fit: BoxFit.cover,
               ),
-              child: Container(
-                height: 120,
-                color: Colors.grey[200],
-                child: Stack(
-                  children: [
-                    if (offering['image'] != null)
-                      Image.asset(
-                        offering['image'],
-                        height: 120,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                      ),
-                    Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.bottomCenter,
-                          end: Alignment.topCenter,
-                          colors: [
-                            Colors.black.withOpacity(0.3),
-                            Colors.transparent,
-                          ],
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      top: 8,
-                      right: 8,
-                      child: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: TColors.primary,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          offering['icon'],
-                          color: Colors.white,
-                          size: 16,
-                        ),
-                      ),
-                    ),
-                  ],
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.bottomCenter,
+                  end: Alignment.topCenter,
+                  colors: [Colors.black.withOpacity(0.3), Colors.transparent],
                 ),
               ),
             ),
-            Padding(
-              padding: EdgeInsets.all(_cardPadding),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    offering['title'],
-                    style: GoogleFonts.poppins(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      color: dark ? TColors.white : TColors.black,
-                      height: 1.3,
-                    ),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    offering['description'],
-                    style: GoogleFonts.inter(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w400,
-                      color: dark ? TColors.lightgrey : TColors.darkGrey,
-                      height: 1.5,
-                    ),
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  SizedBox(height: 12),
-                  InkWell(
-                    onTap: () {},
-                    child: Row(
-                      children: [
-                        Text(
-                          'Learn more',
-                          style: GoogleFonts.inter(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w600,
-                            color: TColors.primary,
-                          ),
-                        ),
-                        SizedBox(width: 4),
-                        Icon(
-                          Icons.arrow_forward,
-                          size: 12,
-                          color: TColors.primary,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+            Positioned(
+              top: 12,
+              right: 12,
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: const BoxDecoration(
+                  color: TColors.primary,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(offering['icon'], color: Colors.white, size: 18),
               ),
             ),
           ],
         ),
       ),
     );
+  }
+
+  Widget _buildCardContent(Map<String, dynamic> offering) {
+    return Padding(
+      padding: EdgeInsets.all(_cardPadding),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            offering['title'],
+            style: GoogleFonts.poppins(
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+              color: dark ? TColors.white : TColors.black,
+              height: 1.3,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            offering['description'],
+            style: GoogleFonts.inter(
+              fontSize: 11,
+              fontWeight: FontWeight.w400,
+              color: dark ? TColors.lightgrey : TColors.darkGrey,
+              height: 1.5,
+            ),
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 12),
+          _buildLearnMoreButton(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLearnMoreButton() {
+    return InkWell(
+      onTap: () => _handleLearnMore(),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            'Learn more',
+            style: GoogleFonts.inter(
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+              color: TColors.primary,
+            ),
+          ),
+          const SizedBox(width: 4),
+          const Icon(Icons.arrow_forward, size: 12, color: TColors.primary),
+        ],
+      ),
+    );
+  }
+
+  void _handleCardTap(Map<String, dynamic> offering) {
+    _navigationHistory['last_offering'] = offering['title'];
+    // Implement card tap functionality
+  }
+
+  void _handleLearnMore() {
+    _navigationHistory['last_action'] = 'learn_more';
+    // Implement learn more functionality
   }
 
   Widget _buildTestimonialCard(Map<String, dynamic> testimonial) {
@@ -809,7 +832,10 @@ class _MobileHomePageState extends State<MobileHomePage> {
 
   Widget _buildCtaButton(String label, VoidCallback onPressed) {
     return ElevatedButton(
-      onPressed: onPressed,
+      onPressed: () {
+        _navigationHistory['last_cta'] = label;
+        onPressed();
+      },
       style: ElevatedButton.styleFrom(
         backgroundColor: TColors.primary,
         foregroundColor: TColors.white,
@@ -908,13 +934,22 @@ class _MobileHomePageState extends State<MobileHomePage> {
                 SizedBox(height: _elementPadding * 3),
                 Row(
                   children: [
-                    _buildCtaButton('Explore Solutions', () {}),
+                    _buildCtaButton('Explore Solutions', () {
+                      _scrollController.animateTo(
+                        MediaQuery.of(context).size.height * 0.8,
+                        duration: Duration(milliseconds: 500),
+                        curve: Curves.easeInOut,
+                      );
+                    }),
                     SizedBox(width: 12),
                     OutlinedButton(
-                      onPressed: () => showDialog(
-                        context: context,
-                        builder: (context) => const ContactUsDialog(),
-                      ),
+                      onPressed: () {
+                        _navigationHistory['last_action'] = 'contact_us';
+                        showDialog(
+                          context: context,
+                          builder: (context) => const ContactUsDialog(),
+                        );
+                      },
                       style: OutlinedButton.styleFrom(
                         padding: EdgeInsets.symmetric(
                           horizontal: 24,
@@ -970,16 +1005,13 @@ class _MobileHomePageState extends State<MobileHomePage> {
           ),
           SizedBox(height: _elementPadding * 2),
           SizedBox(
-            height: 260, // Increased height to accommodate card content
+            height: 320,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: _offerings.length,
               itemBuilder: (context, index) {
-                return Container(
-                  width:
-                      MediaQuery.of(context).size.width *
-                      0.6, // Responsive width
-                  margin: EdgeInsets.only(right: _elementPadding),
+                return SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.6,
                   child: _buildOfferingCard(_offerings[index]),
                 );
               },
@@ -999,145 +1031,157 @@ class _MobileHomePageState extends State<MobileHomePage> {
         vertical: _sectionPadding,
         horizontal: _screenPadding,
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Our Products',
-            style: _headlineMedium(
-              context,
-            ).copyWith(color: dark ? TColors.white : TColors.black),
-          ),
-          SizedBox(height: _elementPadding * 1.5),
-          Text(
-            'Discover our latest and most popular agricultural products',
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              color: dark ? TColors.lightgrey : TColors.darkGrey,
+      child: RefreshIndicator(
+        onRefresh: () async {
+          setState(() {
+            _isLoadingPopular = true;
+          });
+          await _fetchPopularProducts();
+        },
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Our Products',
+              style: _headlineMedium(
+                context,
+              ).copyWith(color: dark ? TColors.white : TColors.black),
             ),
-          ),
-          SizedBox(height: _elementPadding * 2),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'New Products',
-                style: GoogleFonts.poppins(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: dark ? TColors.white : TColors.black,
-                ),
+            SizedBox(height: _elementPadding * 1.5),
+            Text(
+              'Discover our latest and most popular agricultural products',
+              style: GoogleFonts.inter(
+                fontSize: 12,
+                color: dark ? TColors.lightgrey : TColors.darkGrey,
               ),
-              SizedBox(height: _elementPadding),
-              _isLoadingPopular
-                  ? _buildShimmerEffect()
-                  : _newProducts.isEmpty
-                  ? Center(
-                      child: Column(
-                        children: [
-                          Icon(
-                            Icons.new_releases,
-                            size: 30,
-                            color: dark
-                                ? TColors.white.withOpacity(0.6)
-                                : TColors.textsecondary,
-                          ),
-                          SizedBox(height: _elementPadding),
-                          Text(
-                            'No new products available',
-                            style: _bodyMedium(context),
-                          ),
-                        ],
-                      ),
-                    )
-                  : GridView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            crossAxisSpacing: 8,
-                            mainAxisSpacing: 8,
-                            childAspectRatio: 0.65,
-                          ),
-                      itemCount: _newProducts.length.clamp(0, 4),
-                      itemBuilder: (context, index) {
-                        final product = _newProducts[index];
-                        return GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    ProductDetailsScreen(product: product),
-                              ),
-                            );
-                          },
-                          child: _buildPopularProductCard(product),
-                        );
-                      },
-                    ),
-              SizedBox(height: _sectionPadding),
-              Text(
-                'Popular Products',
-                style: GoogleFonts.poppins(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: dark ? TColors.white : TColors.black,
+            ),
+            SizedBox(height: _elementPadding * 2),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'New Products',
+                  style: GoogleFonts.poppins(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: dark ? TColors.white : TColors.black,
+                  ),
                 ),
-              ),
-              SizedBox(height: _elementPadding),
-              _isLoadingPopular
-                  ? _buildShimmerEffect()
-                  : _popularProducts.isEmpty
-                  ? Center(
-                      child: Column(
-                        children: [
-                          Icon(
-                            Icons.production_quantity_limits,
-                            size: 30,
-                            color: dark
-                                ? TColors.white.withOpacity(0.6)
-                                : TColors.textsecondary,
-                          ),
-                          SizedBox(height: _elementPadding),
-                          Text(
-                            'No popular products available',
-                            style: _bodyMedium(context),
-                          ),
-                        ],
+                SizedBox(height: _elementPadding),
+                _isLoadingPopular
+                    ? _buildShimmerEffect()
+                    : _newProducts.isEmpty
+                    ? Center(
+                        child: Column(
+                          children: [
+                            Icon(
+                              Icons.new_releases,
+                              size: 30,
+                              color: dark
+                                  ? TColors.white.withOpacity(0.6)
+                                  : TColors.textsecondary,
+                            ),
+                            SizedBox(height: _elementPadding),
+                            Text(
+                              'No new products available',
+                              style: _bodyMedium(context),
+                            ),
+                          ],
+                        ),
+                      )
+                    : GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              crossAxisSpacing: 8,
+                              mainAxisSpacing: 8,
+                              childAspectRatio: 0.65,
+                            ),
+                        itemCount: _newProducts.length.clamp(0, 4),
+                        itemBuilder: (context, index) {
+                          final product = _newProducts[index];
+                          return GestureDetector(
+                            onTap: () {
+                              _navigationHistory['last_product'] =
+                                  product['name'];
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      ProductDetailsScreen(product: product),
+                                ),
+                              );
+                            },
+                            child: _buildPopularProductCard(product),
+                          );
+                        },
                       ),
-                    )
-                  : GridView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            crossAxisSpacing: 8,
-                            mainAxisSpacing: 8,
-                            childAspectRatio: 0.65,
-                          ),
-                      itemCount: _popularProducts.length.clamp(0, 4),
-                      itemBuilder: (context, index) {
-                        final product = _popularProducts[index];
-                        return GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    ProductDetailsScreen(product: product),
-                              ),
-                            );
-                          },
-                          child: _buildPopularProductCard(product),
-                        );
-                      },
-                    ),
-            ],
-          ),
-        ],
+                SizedBox(height: _sectionPadding),
+                Text(
+                  'Popular Products',
+                  style: GoogleFonts.poppins(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: dark ? TColors.white : TColors.black,
+                  ),
+                ),
+                SizedBox(height: _elementPadding),
+                _isLoadingPopular
+                    ? _buildShimmerEffect()
+                    : _popularProducts.isEmpty
+                    ? Center(
+                        child: Column(
+                          children: [
+                            Icon(
+                              Icons.production_quantity_limits,
+                              size: 30,
+                              color: dark
+                                  ? TColors.white.withOpacity(0.6)
+                                  : TColors.textsecondary,
+                            ),
+                            SizedBox(height: _elementPadding),
+                            Text(
+                              'No popular products available',
+                              style: _bodyMedium(context),
+                            ),
+                          ],
+                        ),
+                      )
+                    : GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              crossAxisSpacing: 8,
+                              mainAxisSpacing: 8,
+                              childAspectRatio: 0.65,
+                            ),
+                        itemCount: _popularProducts.length.clamp(0, 4),
+                        itemBuilder: (context, index) {
+                          final product = _popularProducts[index];
+                          return GestureDetector(
+                            onTap: () {
+                              _navigationHistory['last_product'] =
+                                  product['name'];
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      ProductDetailsScreen(product: product),
+                                ),
+                              );
+                            },
+                            child: _buildPopularProductCard(product),
+                          );
+                        },
+                      ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -1149,64 +1193,74 @@ class _MobileHomePageState extends State<MobileHomePage> {
         vertical: _sectionPadding,
         horizontal: _screenPadding,
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Featured Services',
-            style: _headlineMedium(
-              context,
-            ).copyWith(color: dark ? TColors.white : TColors.black),
-          ),
-          SizedBox(height: _elementPadding * 1.5),
-          _isLoadingFeatured
-              ? _buildFeaturedShimmerEffect()
-              : _featuredProducts.isEmpty
-              ? Center(
-                  child: Column(
-                    children: [
-                      Icon(
-                        Icons.star_border,
-                        size: 30,
-                        color: dark
-                            ? TColors.white.withOpacity(0.6)
-                            : TColors.textsecondary,
-                      ),
-                      SizedBox(height: _elementPadding),
-                      Text(
-                        'No featured services found',
-                        style: _bodyMedium(context),
-                      ),
-                    ],
+      child: RefreshIndicator(
+        onRefresh: () async {
+          setState(() {
+            _isLoadingFeatured = true;
+          });
+          await _fetchFeaturedProducts();
+        },
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Featured Products',
+              style: _headlineMedium(
+                context,
+              ).copyWith(color: dark ? TColors.white : TColors.black),
+            ),
+            SizedBox(height: _elementPadding * 1.5),
+            _isLoadingFeatured
+                ? _buildFeaturedShimmerEffect()
+                : _featuredProducts.isEmpty
+                ? Center(
+                    child: Column(
+                      children: [
+                        Icon(
+                          Icons.star_border,
+                          size: 30,
+                          color: dark
+                              ? TColors.white.withOpacity(0.6)
+                              : TColors.textsecondary,
+                        ),
+                        SizedBox(height: _elementPadding),
+                        Text(
+                          'No featured services found',
+                          style: _bodyMedium(context),
+                        ),
+                      ],
+                    ),
+                  )
+                : GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          childAspectRatio: 1.2,
+                          crossAxisSpacing: 8,
+                          mainAxisSpacing: 8,
+                        ),
+                    itemCount: _featuredProducts.length.clamp(0, 4),
+                    itemBuilder: (context, index) {
+                      final product = _featuredProducts[index];
+                      return GestureDetector(
+                        onTap: () {
+                          _navigationHistory['last_product'] = product['name'];
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  ProductDetailsScreen(product: product),
+                            ),
+                          );
+                        },
+                        child: _buildFeaturedProductCard(product),
+                      );
+                    },
                   ),
-                )
-              : GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    childAspectRatio: 1.2,
-                    crossAxisSpacing: 8,
-                    mainAxisSpacing: 8,
-                  ),
-                  itemCount: _featuredProducts.length.clamp(0, 4),
-                  itemBuilder: (context, index) {
-                    final product = _featuredProducts[index];
-                    return GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                ProductDetailsScreen(product: product),
-                          ),
-                        );
-                      },
-                      child: _buildFeaturedProductCard(product),
-                    );
-                  },
-                ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -1299,20 +1353,40 @@ class _MobileHomePageState extends State<MobileHomePage> {
     );
   }
 
+  void _scrollToTop() {
+    _scrollController.animateTo(
+      0,
+      duration: Duration(milliseconds: 500),
+      curve: Curves.easeInOut,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     dark = Theme.of(context).brightness == Brightness.dark;
 
-    return CustomScrollView(
-      slivers: [
-        SliverToBoxAdapter(child: _buildHeroSection()),
-        SliverToBoxAdapter(child: _buildSolutionsSection()),
-        SliverToBoxAdapter(child: _buildProductsSection()),
-        SliverToBoxAdapter(child: _buildFeaturedServicesSection()),
-        SliverToBoxAdapter(child: _buildTestimonialsSection()),
-        SliverToBoxAdapter(child: _buildCtaSection()),
-        const SliverToBoxAdapter(child: Footer()),
-      ],
+    return Scaffold(
+      body: CustomScrollView(
+        controller: _scrollController,
+        physics: const BouncingScrollPhysics(),
+        slivers: [
+          SliverToBoxAdapter(child: _buildHeroSection()),
+          SliverToBoxAdapter(child: _buildSolutionsSection()),
+          SliverToBoxAdapter(child: _buildProductsSection()),
+          SliverToBoxAdapter(child: _buildFeaturedServicesSection()),
+          SliverToBoxAdapter(child: _buildTestimonialsSection()),
+          SliverToBoxAdapter(child: _buildCtaSection()),
+          const SliverToBoxAdapter(child: Footer()),
+        ],
+      ),
+      floatingActionButton: _showScrollToTop
+          ? FloatingActionButton(
+              onPressed: _scrollToTop,
+              backgroundColor: TColors.primary,
+              mini: true,
+              child: const Icon(Icons.arrow_upward, color: TColors.white),
+            )
+          : null,
     );
   }
 }

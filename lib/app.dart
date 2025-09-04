@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'navigation/main_navigation.dart';
+import 'navigation/main_navigation_wrapper.dart.dart';
 import 'utils/theme/theme.dart';
 
 class App extends StatefulWidget {
@@ -13,7 +13,7 @@ class _AppState extends State<App> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'hm_seamsnstone',
+      title: 'MBB AgroTech',
       themeMode: ThemeMode.system,
       theme: TAppTheme.lightTheme,
       darkTheme: TAppTheme.darkTheme,
