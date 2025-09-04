@@ -3,11 +3,11 @@ const MANIFEST = 'flutter-app-manifest';
 const TEMP = 'flutter-temp-cache';
 const CACHE_NAME = 'flutter-app-cache';
 
-const RESOURCES = {"flutter_bootstrap.js": "3f1e217f107399e54d0d6545eef868e2",
+const RESOURCES = {"flutter_bootstrap.js": "1e6847c1fd274758e6714572b6d687b0",
 "version.json": "e0e4c886e626f3bba1d3fbab7b7e58f0",
 "index.html": "a67ed751598699b5f4b9b8a4a41cd471",
 "/": "a67ed751598699b5f4b9b8a4a41cd471",
-"main.dart.js": "3f9ef34a25366258aeb4a4042f7f296e",
+"main.dart.js": "8dde480ac1bf3a2503c522595d699f8d",
 "flutter.js": "83d881c1dbb6d6bcd6b42e274605b69c",
 "logo.png": "e755205640cff1bae3e8762988f2901b",
 "icons/apple-touch-icon.png": "f1c4a3a07b537f3fbd9cea7922652f6d",
@@ -24,7 +24,7 @@ const RESOURCES = {"flutter_bootstrap.js": "3f1e217f107399e54d0d6545eef868e2",
 "assets/packages/font_awesome_flutter/lib/fonts/fa-solid-900.ttf": "269f971cec0d5dc864fe9ae080b19e23",
 "assets/packages/font_awesome_flutter/lib/fonts/fa-regular-400.ttf": "262525e2081311609d1fdab966c82bfc",
 "assets/packages/font_awesome_flutter/lib/fonts/fa-brands-400.ttf": "837c6f52505f32b6a6b07dad6b38743a",
-"assets/packages/iconsax_flutter/fonts/FlutterIconsax.ttf": "5c3a62c8057d334d744dd2825bb6dd37",
+"assets/packages/iconsax_flutter/fonts/FlutterIconsax.ttf": "17f88c978aa3816517cda28823c4300c",
 "assets/packages/fluttertoast/assets/toastify.js": "56e2c9cedd97f10e7e5f1cebd85d53e3",
 "assets/packages/fluttertoast/assets/toastify.css": "a85675050054f179444bc5ad70ffc635",
 "assets/shaders/ink_sparkle.frag": "ecc85a2e95f5e9f53123dcaf8cb9b6ce",
