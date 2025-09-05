@@ -979,6 +979,59 @@ class _MobileHomePageState extends State<MobileHomePage> {
     );
   }
 
+  // NEW SECTION: What Makes Us Special
+  Widget _buildWhatMakesUsSpecialSection() {
+    return Container(
+      color: dark ? TColors.dark : TColors.light,
+      padding: EdgeInsets.symmetric(
+        vertical: _sectionPadding,
+        horizontal: _screenPadding,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'What Makes Us Special',
+            style: _headlineMedium(
+              context,
+            ).copyWith(color: dark ? TColors.white : TColors.black),
+          ),
+          SizedBox(height: _elementPadding * 1.5),
+          Text(
+            'Smart Farming & Innovation',
+            style: GoogleFonts.poppins(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: TColors.primary,
+            ),
+          ),
+          SizedBox(height: _elementPadding),
+          Text(
+            'At MBB Agrotech, we are on a mission to revolutionize agriculture through smart farming, hydroponics, and innovative agri-tech solutions — growing healthier food and creating sustainable systems for the betterment of humanity.',
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              color: dark ? TColors.lightgrey : TColors.darkGrey,
+              height: 1.6,
+            ),
+            textAlign: TextAlign.justify,
+          ),
+          SizedBox(height: _elementPadding * 2),
+          Container(
+            width: double.infinity,
+            height: 180,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              image: const DecorationImage(
+                image: AssetImage('assets/images/smart_farming.jpg'),
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildSolutionsSection() {
     return Container(
       color: dark ? TColors.dark : TColors.light,
@@ -1371,6 +1424,9 @@ class _MobileHomePageState extends State<MobileHomePage> {
         physics: const BouncingScrollPhysics(),
         slivers: [
           SliverToBoxAdapter(child: _buildHeroSection()),
+          SliverToBoxAdapter(
+            child: _buildWhatMakesUsSpecialSection(),
+          ), // NEW SECTION ADDED
           SliverToBoxAdapter(child: _buildSolutionsSection()),
           SliverToBoxAdapter(child: _buildProductsSection()),
           SliverToBoxAdapter(child: _buildFeaturedServicesSection()),

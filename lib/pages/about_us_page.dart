@@ -61,39 +61,14 @@ class AboutUsScreen extends StatelessWidget {
       appBar: AppBar(
         titleSpacing: 16,
         scrolledUnderElevation: 0,
-        leading: IconButton(
-          padding: const EdgeInsets.all(8),
-          icon: Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: dark ? TColors.darkContainer : TColors.lightContainer,
-              border: Border.all(
-                color: dark
-                    ? Colors.white.withOpacity(0.1)
-                    : Colors.black.withOpacity(0.1),
-                width: 0.5,
-              ),
-            ),
-            child: Icon(
-              Iconsax.arrow_left_2,
-              size: 20,
-              color: dark ? Colors.white : Colors.black,
-            ),
-          ),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
+
         title: Text(
           'About Us',
-          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-            fontSize: titleFontSize,
-            fontWeight: FontWeight.w700,
-            color: dark ? Colors.white : TColors.black,
-          ),
+          style: Theme.of(context).textTheme.headlineSmall,
         ),
         backgroundColor: dark ? TColors.dark : TColors.light,
         elevation: 0,
+        centerTitle: true,
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.symmetric(
