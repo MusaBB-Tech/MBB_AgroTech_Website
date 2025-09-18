@@ -181,9 +181,9 @@ class AboutUsScreen extends StatelessWidget {
                         scrollDirection: Axis.horizontal,
                         children: [
                           _buildTeamMember(
-                            'assets/images/team1.jpg',
-                            'Alex',
-                            'Founder',
+                            'assets/images/musa.png',
+                            'Musa BB',
+                            'CEO Founder',
                             dark,
                             teamAvatarSize,
                             textFontSize,
@@ -191,8 +191,8 @@ class AboutUsScreen extends StatelessWidget {
                           SizedBox(width: screenPadding),
                           _buildTeamMember(
                             'assets/images/team2.jpg',
-                            'Sarah',
-                            'Lead Engineer',
+                            'Umar (Mr. More)',
+                            'Data Analyst',
                             dark,
                             teamAvatarSize,
                             textFontSize,
@@ -200,7 +200,7 @@ class AboutUsScreen extends StatelessWidget {
                           SizedBox(width: screenPadding),
                           _buildTeamMember(
                             'assets/images/team3.jpg',
-                            'Jamal',
+                            'Dr. Khalil',
                             'Agronomist',
                             dark,
                             teamAvatarSize,
@@ -210,7 +210,7 @@ class AboutUsScreen extends StatelessWidget {
                           if (isDesktop)
                             _buildTeamMember(
                               'assets/images/team4.jpg',
-                              'Maria',
+                              'Ubadah',
                               'Marketing',
                               dark,
                               teamAvatarSize,
