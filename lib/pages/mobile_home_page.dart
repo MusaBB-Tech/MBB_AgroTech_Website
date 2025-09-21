@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
-import 'package:mbb_agrotech_website/utils/showSnackBar.dart';
+import 'package:mbb_agrotech_website/widgets/customToast.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -187,7 +187,7 @@ class _MobileHomePageState extends State<MobileHomePage> {
       });
       debugPrint('Error fetching popular products: $e');
       if (mounted) {
-        CustomSnackbar.error(context, 'Error fetching popular products');
+        CustomToast.error(context, 'Error fetching popular products');
       }
     }
   }
@@ -212,7 +212,7 @@ class _MobileHomePageState extends State<MobileHomePage> {
       });
       debugPrint('Error fetching featured products: $e');
       if (mounted) {
-        CustomSnackbar.error(context, 'Error fetching featured products');
+        CustomToast.error(context, 'Error fetching featured products');
       }
     }
   }
@@ -382,7 +382,7 @@ class _MobileHomePageState extends State<MobileHomePage> {
     final userId = _supabase.auth.currentUser?.id;
     if (userId == null) {
       if (mounted) {
-        CustomSnackbar.warning(context, 'Please sign in to add to cart');
+        CustomToast.warning(context, 'Please sign in to add to cart');
       }
       return;
     }
@@ -397,12 +397,12 @@ class _MobileHomePageState extends State<MobileHomePage> {
         'quantity': 1,
       });
       if (mounted) {
-        CustomSnackbar.success(context, 'Added to cart');
+        CustomToast.success(context, 'Added to cart');
       }
     } catch (e) {
       debugPrint('Error adding to cart: $e');
       if (mounted) {
-        CustomSnackbar.error(context, 'Error adding to cart');
+        CustomToast.error(context, 'Error adding to cart');
       }
     }
   }

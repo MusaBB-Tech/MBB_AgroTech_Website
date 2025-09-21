@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:mbb_agrotech_website/pages/admin_panel.dart';
 import 'package:mbb_agrotech_website/pages/products_screen.dart';
-import 'package:mbb_agrotech_website/utils/showSnackBar.dart';
+
 import 'package:mbb_agrotech_website/widgets/signi_signup_dialog.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../pages/about_us_page.dart';
@@ -65,7 +65,7 @@ class _MobileMainNavigationWrapperState
         _selectedNavIndex = 0; // Reset to Home destination
       });
     } catch (e) {
-      CustomSnackbar.error(context, 'Sign-out failed');
+      CustomToast.error(context, 'Sign-out failed');
     }
   }
 
@@ -314,7 +314,7 @@ class _MobileMainNavigationWrapperState
           // Restrict access to Cart, Account, and Admin if not authenticated
           if ((pageIndex == 2 || pageIndex == 3 || pageIndex == 4) &&
               !widget.isAuthenticated) {
-            CustomSnackbar.error(context, 'Please sign in to access this page');
+            CustomToast.error(context, 'Please sign in to access this page');
             return;
           }
           // Restrict access to Admin if not an admin

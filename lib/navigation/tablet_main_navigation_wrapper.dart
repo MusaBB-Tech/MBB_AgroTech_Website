@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:mbb_agrotech_website/pages/admin_panel.dart';
 import 'package:mbb_agrotech_website/pages/products_screen.dart';
-import 'package:mbb_agrotech_website/utils/showSnackBar.dart';
+import 'package:mbb_agrotech_website/widgets/customToast.dart';
 import 'package:mbb_agrotech_website/widgets/signi_signup_dialog.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../pages/about_us_page.dart';
@@ -185,14 +185,14 @@ class _TabletMainNavigationWrapperState
         _currentIndex = 0;
       });
     } catch (e) {
-      CustomSnackbar.error(context, 'Sign-out failed');
+      CustomToast.error(context, 'Sign-out failed');
     }
   }
 
   void _showDropdown(String label, RenderBox renderBox, double screenWidth) {
     if ((label == 'Cart' || label == 'Account' || label == 'Admin') &&
         !widget.isAuthenticated) {
-      CustomSnackbar.error(context, 'Please sign in to access this page');
+      CustomToast.error(context, 'Please sign in to access this page');
       return;
     }
     if (label == 'Admin' && widget.isAdmin != true) return;
@@ -399,7 +399,7 @@ class _TabletMainNavigationWrapperState
                 item['title'] == 'Saved Items' ||
                 item['title'] == 'Sign Out' ||
                 item['title'] == 'Admin Panel')) {
-          CustomSnackbar.error(context, 'Please sign in to access this page');
+          CustomToast.error(context, 'Please sign in to access this page');
           return;
         }
 
@@ -602,7 +602,7 @@ class _TabletMainNavigationWrapperState
         onTap: () {
           if ((index == 2 || index == 3 || index == 4) &&
               !widget.isAuthenticated) {
-            CustomSnackbar.error(context, 'Please sign in to access this page');
+            CustomToast.error(context, 'Please sign in to access this page');
             return;
           }
           if (index == 4 && widget.isAdmin != true) return;

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
+import 'package:mbb_agrotech_website/widgets/customToast.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../utils/constants/colors.dart';
 import '../widgets/custom_loading.dart';
-import '../utils/showSnackBar.dart';
+
 import '../utils/helpers/helper_functions.dart';
 import 'dart:ui';
 
@@ -308,7 +309,7 @@ class _ContactUsDialogState extends State<ContactUsDialog> {
     if (_nameController.text.isEmpty ||
         _emailController.text.isEmpty ||
         _messageController.text.isEmpty) {
-      CustomSnackbar.warning(context, 'Please fill all fields');
+      CustomToast.warning(context, 'Please fill all fields');
       return;
     }
 

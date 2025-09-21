@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
+import 'package:mbb_agrotech_website/widgets/customToast.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../utils/constants/colors.dart';
 import '../widgets/custom_loading.dart';
-import '../utils/showSnackBar.dart';
 import '../utils/helpers/helper_functions.dart';
 import 'dart:ui';
 
@@ -382,7 +382,7 @@ class _BookConsultationDialogState extends State<BookConsultationDialog> {
         _emailController.text.isEmpty ||
         _phoneController.text.isEmpty ||
         _selectedConsultationType == null) {
-      CustomSnackbar.warning(context, 'Please fill all required fields');
+      CustomToast.warning(context, 'Please fill all required fields');
       return;
     }
 

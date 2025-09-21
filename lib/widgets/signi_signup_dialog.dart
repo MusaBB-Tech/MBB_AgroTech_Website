@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
+import 'package:mbb_agrotech_website/widgets/customToast.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../utils/constants/colors.dart';
 import '../widgets/custom_loading.dart';
-import '../utils/showSnackBar.dart';
 import '../utils/helpers/helper_functions.dart';
 import 'dart:ui';
 
@@ -245,7 +245,7 @@ class _SignInTabState extends State<_SignInTab> {
 
   Future<void> _handleSignIn() async {
     if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
-      CustomSnackbar.warning(context, 'Please fill all fields');
+      CustomToast.warning(context, 'Please fill all fields');
       return;
     }
 
@@ -264,7 +264,7 @@ class _SignInTabState extends State<_SignInTab> {
         Navigator.of(context).pop(); // Close dialog on success
       }
     } on AuthException {
-      CustomSnackbar.error(context, 'Invalid Credentials, please try again');
+      CustomToast.error(context, 'Invalid Credentials, please try again');
     } finally {
       setState(() {
         _isLoading = false;
@@ -468,7 +468,7 @@ class _SignUpTabState extends State<_SignUpTab> {
         _confirmPasswordController.text.isEmpty ||
         _confirmPasswordController.text != _passwordController.text ||
         !_isTermsAccepted) {
-      CustomSnackbar.warning(
+      CustomToast.warning(
         context,
         'Please fill all fields correctly and accept terms',
       );
@@ -493,16 +493,16 @@ class _SignUpTabState extends State<_SignUpTab> {
       );
 
       if (response.user != null) {
-        CustomSnackbar.success(
+        CustomToast.success(
           context,
           'Registration successful! Please check your email.',
         );
         Navigator.of(context).pop(); // Close dialog on success
       }
     } on AuthException {
-      CustomSnackbar.error(context, 'Error');
+      CustomToast.error(context, 'Error');
     } catch (e) {
-      CustomSnackbar.error(context, 'Unexpected error');
+      CustomToast.error(context, 'Unexpected error');
     } finally {
       setState(() {
         _isLoading = false;

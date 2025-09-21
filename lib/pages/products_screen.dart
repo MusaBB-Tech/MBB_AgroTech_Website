@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
+import 'package:mbb_agrotech_website/widgets/customToast.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../utils/constants/colors.dart';
-import '../../utils/showSnackBar.dart';
 import '../responsive.dart';
 import 'product_detail_screen.dart';
 import 'dart:math';
@@ -110,7 +110,7 @@ class _ProductsScreenState extends State<ProductsScreen>
         _isLoading = false;
       });
       if (mounted) {
-        CustomSnackbar.error(context, 'Error fetching products: $error');
+        CustomToast.error(context, 'Error fetching products: $error');
       }
     }
   }
@@ -149,7 +149,7 @@ class _ProductsScreenState extends State<ProductsScreen>
   void _addToCart(Map<String, dynamic> product) async {
     final userId = supabase.auth.currentUser?.id;
     if (userId == null) {
-      CustomSnackbar.error(context, 'Please sign in to add to cart');
+      CustomToast.error(context, 'Please sign in to add to cart');
       return;
     }
 
@@ -194,7 +194,7 @@ class _ProductsScreenState extends State<ProductsScreen>
       );
     } catch (error) {
       debugPrint('Error adding to cart: $error');
-      CustomSnackbar.error(context, 'Error adding to cart');
+      CustomToast.error(context, 'Error adding to cart');
     }
   }
 
