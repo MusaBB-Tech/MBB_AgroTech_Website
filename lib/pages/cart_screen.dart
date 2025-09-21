@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
+import 'package:mbb_agrotech_website/widgets/customToast.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../utils/constants/colors.dart';
-import '../../utils/showSnackBar.dart';
 import '../responsive.dart';
 
 class CartScreen extends StatefulWidget {
@@ -39,7 +39,7 @@ class _CartScreenState extends State<CartScreen> {
     final userId = supabase.auth.currentUser?.id;
     if (userId == null) {
       if (mounted) {
-        CustomSnackbar.warning(context, 'Please sign in to view your cart');
+        CustomToast.warning(context, 'Please sign in to view your cart');
       }
       setState(() {
         _isLoading = false;
@@ -71,7 +71,7 @@ class _CartScreenState extends State<CartScreen> {
           _isLoading = false;
           _hasError = true;
         });
-        CustomSnackbar.error(context, 'Error fetching cart items');
+        CustomToast.error(context, 'Error fetching cart items');
       }
     }
   }
@@ -104,7 +104,7 @@ class _CartScreenState extends State<CartScreen> {
     } catch (error) {
       debugPrint('Error updating quantity: $error');
       if (mounted) {
-        CustomSnackbar.error(context, 'Error updating quantity');
+        CustomToast.error(context, 'Error updating quantity');
       }
     }
   }
@@ -120,12 +120,12 @@ class _CartScreenState extends State<CartScreen> {
           _calculateTotal();
         });
         await _fetchCartItems();
-        CustomSnackbar.success(context, 'Item removed from cart');
+        CustomToast.success(context, 'Item removed from cart');
       }
     } catch (error) {
       debugPrint('Error removing item: $error');
       if (mounted) {
-        CustomSnackbar.error(context, 'Error removing item');
+        CustomToast.error(context, 'Error removing item');
       }
     }
   }
@@ -133,7 +133,7 @@ class _CartScreenState extends State<CartScreen> {
   Future<void> _checkout() async {
     if (_selectedItems.isEmpty) {
       if (mounted) {
-        CustomSnackbar.info(context, 'Please select items to checkout');
+        CustomToast.info(context, 'Please select items to checkout');
       }
       return;
     }
@@ -246,7 +246,7 @@ class _CartScreenState extends State<CartScreen> {
     } catch (error) {
       debugPrint('Checkout error: $error');
       if (mounted) {
-        CustomSnackbar.error(context, 'Checkout failed: ${error.toString()}');
+        CustomToast.error(context, 'Checkout failed: ${error.toString()}');
         setState(() {
           _hasError = true;
         });
@@ -264,7 +264,7 @@ class _CartScreenState extends State<CartScreen> {
     final userId = supabase.auth.currentUser?.id;
     if (userId == null) {
       if (mounted) {
-        CustomSnackbar.warning(context, 'Please sign in to place an order');
+        CustomToast.warning(context, 'Please sign in to place an order');
       }
       return;
     }
@@ -310,13 +310,13 @@ class _CartScreenState extends State<CartScreen> {
       }
 
       if (mounted) {
-        CustomSnackbar.success(context, 'Order placed successfully!');
+        CustomToast.success(context, 'Order placed successfully!');
         await _fetchCartItems();
       }
     } catch (error) {
       debugPrint('Error creating order: $error');
       if (mounted) {
-        CustomSnackbar.error(context, 'Error placing order');
+        CustomToast.error(context, 'Error placing order');
         setState(() {
           _hasError = true;
         });

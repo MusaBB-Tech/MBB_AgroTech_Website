@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
+import 'package:mbb_agrotech_website/widgets/customToast.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../utils/constants/colors.dart';
 import '../widgets/custom_loading.dart';
 import '../utils/helpers/helper_functions.dart';
-import '../utils/showSnackBar.dart';
+
 
 Future<void> showChangePasswordDialog(BuildContext context) async {
   return showDialog<void>(
@@ -37,7 +38,7 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
     final confirmPassword = confirmPasswordController.text.trim();
 
     if (newPassword != confirmPassword) {
-      CustomSnackbar.error(
+      CustomToast.error(
         context,
         'New password and confirm password do not match.',
       );
@@ -45,7 +46,7 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
     }
 
     if (newPassword.isEmpty || oldPassword.isEmpty || confirmPassword.isEmpty) {
-      CustomSnackbar.warning(context, 'Please fill in all fields.');
+      CustomToast.warning(context, 'Please fill in all fields.');
       return;
     }
 
@@ -57,7 +58,7 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
       final supabase = Supabase.instance.client;
       final user = supabase.auth.currentUser;
       if (user == null) {
-        CustomSnackbar.error(context, 'No user logged in.');
+        CustomToast.error(context, 'No user logged in.');
         return;
       }
 
@@ -68,10 +69,10 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
 
       await supabase.auth.updateUser(UserAttributes(password: newPassword));
 
-      CustomSnackbar.success(context, 'Password updated successfully.');
+      CustomToast.success(context, 'Password updated successfully.');
       Navigator.of(context).pop();
     } catch (e) {
-      CustomSnackbar.error(context, 'An unexpected error occurred.');
+      CustomToast.error(context, 'An unexpected error occurred.');
     } finally {
       setState(() {
         isLoading = false;

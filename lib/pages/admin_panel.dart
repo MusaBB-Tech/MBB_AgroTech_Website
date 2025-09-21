@@ -2,11 +2,12 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
+import 'package:mbb_agrotech_website/widgets/customToast.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:file_picker/file_picker.dart';
 import '../../utils/constants/colors.dart';
-import '../../utils/showSnackBar.dart';
+
 import '../responsive.dart';
 import 'dart:io';
 import 'dart:math';
@@ -138,7 +139,7 @@ class _AdminPanelState extends State<AdminPanel>
         _isLoadingProducts = false;
       });
       if (mounted) {
-        CustomSnackbar.error(context, 'Error fetching products: $error');
+        CustomToast.error(context, 'Error fetching products: $error');
       }
     }
   }
@@ -161,7 +162,7 @@ class _AdminPanelState extends State<AdminPanel>
         _isLoadingOrders = false;
       });
       if (mounted) {
-        CustomSnackbar.error(context, 'Error fetching orders: $e');
+        CustomToast.error(context, 'Error fetching orders: $e');
       }
     }
   }
@@ -251,7 +252,7 @@ class _AdminPanelState extends State<AdminPanel>
     } catch (e) {
       debugPrint('Error uploading image $imageNumber: $e');
       if (mounted) {
-        CustomSnackbar.error(context, 'Error uploading image: ${e.toString()}');
+        CustomToast.error(context, 'Error uploading image: ${e.toString()}');
       }
       return null;
     }
@@ -261,7 +262,7 @@ class _AdminPanelState extends State<AdminPanel>
     if (_nameController.text.isEmpty ||
         _priceController.text.isEmpty ||
         _stockController.text.isEmpty) {
-      CustomSnackbar.warning(context, 'Please fill in all required fields');
+      CustomToast.warning(context, 'Please fill in all required fields');
       return;
     }
 
@@ -313,11 +314,11 @@ class _AdminPanelState extends State<AdminPanel>
 
       await _fetchProducts(_currentCategory);
       if (mounted) {
-        CustomSnackbar.success(context, 'Product added successfully');
+        CustomToast.success(context, 'Product added successfully');
       }
     } catch (e) {
       if (mounted) {
-        CustomSnackbar.error(context, 'Error adding product');
+        CustomToast.error(context, 'Error adding product');
       }
     }
   }
@@ -326,7 +327,7 @@ class _AdminPanelState extends State<AdminPanel>
     if (_nameController.text.isEmpty ||
         _priceController.text.isEmpty ||
         _stockController.text.isEmpty) {
-      CustomSnackbar.warning(context, 'Please fill in all required fields');
+      CustomToast.warning(context, 'Please fill in all required fields');
       return;
     }
 
@@ -383,11 +384,11 @@ class _AdminPanelState extends State<AdminPanel>
 
       await _fetchProducts(_currentCategory);
       if (mounted) {
-        CustomSnackbar.success(context, 'Product updated successfully');
+        CustomToast.success(context, 'Product updated successfully');
       }
     } catch (e) {
       if (mounted) {
-        CustomSnackbar.error(context, 'Error updating product');
+        CustomToast.error(context, 'Error updating product');
       }
     }
   }
@@ -426,11 +427,11 @@ class _AdminPanelState extends State<AdminPanel>
       await supabase.from('products').delete().eq('id', id);
       await _fetchProducts(_currentCategory);
       if (mounted) {
-        CustomSnackbar.success(context, 'Product deleted successfully');
+        CustomToast.success(context, 'Product deleted successfully');
       }
     } catch (e) {
       if (mounted) {
-        CustomSnackbar.error(context, 'Error deleting product');
+        CustomToast.error(context, 'Error deleting product');
       }
     }
   }
@@ -443,11 +444,11 @@ class _AdminPanelState extends State<AdminPanel>
           .eq('id', orderId);
       await _fetchOrders();
       if (mounted) {
-        CustomSnackbar.success(context, 'Order status updated successfully');
+        CustomToast.success(context, 'Order status updated successfully');
       }
     } catch (e) {
       if (mounted) {
-        CustomSnackbar.error(context, 'Error updating order status');
+        CustomToast.error(context, 'Error updating order status');
       }
     }
   }
@@ -458,11 +459,11 @@ class _AdminPanelState extends State<AdminPanel>
       await supabase.from('order_headers').delete().eq('id', orderId);
       await _fetchOrders();
       if (mounted) {
-        CustomSnackbar.success(context, 'Order deleted successfully');
+        CustomToast.success(context, 'Order deleted successfully');
       }
     } catch (e) {
       if (mounted) {
-        CustomSnackbar.error(context, 'Error deleting order');
+        CustomToast.error(context, 'Error deleting order');
       }
     }
   }
@@ -481,7 +482,7 @@ class _AdminPanelState extends State<AdminPanel>
         // Validate file size (5MB limit)
         if (file.size > 5 * 1024 * 1024) {
           if (mounted) {
-            CustomSnackbar.error(context, 'Image size must be less than 5MB');
+            CustomToast.error(context, 'Image size must be less than 5MB');
           }
           return;
         }
@@ -490,7 +491,7 @@ class _AdminPanelState extends State<AdminPanel>
         String? extension = file.extension?.toLowerCase();
         if (!['jpg', 'jpeg', 'png'].contains(extension)) {
           if (mounted) {
-            CustomSnackbar.warning(
+            CustomToast.warning(
               context,
               'Only JPG, JPEG, and PNG images are allowed',
             );
@@ -518,7 +519,7 @@ class _AdminPanelState extends State<AdminPanel>
     } catch (e) {
       debugPrint('Error picking image: $e');
       if (mounted) {
-        CustomSnackbar.error(context, 'Error picking image: ${e.toString()}');
+        CustomToast.error(context, 'Error picking image: ${e.toString()}');
       }
     }
   }
