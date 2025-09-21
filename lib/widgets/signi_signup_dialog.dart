@@ -34,143 +34,145 @@ class _SigningSignupDialogState extends State<SigningSignupDialog>
   Widget build(BuildContext context) {
     final dark = THelperFunctions.isDarkMode(context);
 
-    return Stack(
-      alignment: Alignment.topRight,
-      children: [
-        Center(
-          child: SizedBox(
-            width: 400,
-            child: Dialog(
-              insetPadding: const EdgeInsets.all(16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30),
-              ),
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(30),
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-                  child: Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: dark
-                          ? Colors.black.withOpacity(0.6)
-                          : Colors.white.withOpacity(0.8),
-                      borderRadius: BorderRadius.circular(30),
-                      border: Border.all(
+    return SingleChildScrollView(
+      child: Stack(
+        alignment: Alignment.topRight,
+        children: [
+          Center(
+            child: SizedBox(
+              width: 400,
+              child: Dialog(
+                insetPadding: const EdgeInsets.all(16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                backgroundColor: Colors.transparent,
+                elevation: 0,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(30),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
                         color: dark
-                            ? Colors.white.withOpacity(0.2)
-                            : Colors.black.withOpacity(0.1),
+                            ? Colors.black.withOpacity(0.6)
+                            : Colors.white.withOpacity(0.8),
+                        borderRadius: BorderRadius.circular(30),
+                        border: Border.all(
+                          color: dark
+                              ? Colors.white.withOpacity(0.2)
+                              : Colors.black.withOpacity(0.1),
+                        ),
                       ),
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(top: 8.0),
-                          child: Text(
-                            'Sign In / Sign Up',
-                            style: Theme.of(context).textTheme.headlineSmall
-                                ?.copyWith(
-                                  color: dark ? Colors.white : TColors.dark,
-                                ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8.0),
+                            child: Text(
+                              'Sign In / Sign Up',
+                              style: Theme.of(context).textTheme.headlineSmall
+                                  ?.copyWith(
+                                    color: dark ? Colors.white : TColors.dark,
+                                  ),
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 16),
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 10.0,
-                            vertical: 5.0,
-                          ),
-                          decoration: BoxDecoration(
-                            color: dark
-                                ? Colors.black.withOpacity(0.4)
-                                : Colors.white.withOpacity(0.6),
-                            borderRadius: BorderRadius.circular(30),
-                            border: Border.all(
+                          const SizedBox(height: 16),
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 10.0,
+                              vertical: 5.0,
+                            ),
+                            decoration: BoxDecoration(
                               color: dark
-                                  ? Colors.white.withOpacity(0.1)
-                                  : Colors.black.withOpacity(0.1),
-                            ),
-                          ),
-                          child: TabBar(
-                            controller: _tabController,
-                            isScrollable: false,
-                            unselectedLabelColor: dark
-                                ? TColors.white.withOpacity(0.6)
-                                : TColors.black.withOpacity(0.6),
-                            labelColor: TColors.white,
-                            labelStyle: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            unselectedLabelStyle: TextStyle(fontSize: 12),
-                            indicator: BoxDecoration(
+                                  ? Colors.black.withOpacity(0.4)
+                                  : Colors.white.withOpacity(0.6),
                               borderRadius: BorderRadius.circular(30),
-                              color: TColors.primary,
+                              border: Border.all(
+                                color: dark
+                                    ? Colors.white.withOpacity(0.1)
+                                    : Colors.black.withOpacity(0.1),
+                              ),
                             ),
-                            indicatorSize: TabBarIndicatorSize.tab,
-                            indicatorPadding: EdgeInsets.symmetric(
-                              horizontal: 3.0,
-                              vertical: 3.0,
+                            child: TabBar(
+                              controller: _tabController,
+                              isScrollable: false,
+                              unselectedLabelColor: dark
+                                  ? TColors.white.withOpacity(0.6)
+                                  : TColors.black.withOpacity(0.6),
+                              labelColor: TColors.white,
+                              labelStyle: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              unselectedLabelStyle: TextStyle(fontSize: 12),
+                              indicator: BoxDecoration(
+                                borderRadius: BorderRadius.circular(30),
+                                color: TColors.primary,
+                              ),
+                              indicatorSize: TabBarIndicatorSize.tab,
+                              indicatorPadding: EdgeInsets.symmetric(
+                                horizontal: 3.0,
+                                vertical: 3.0,
+                              ),
+                              labelPadding: EdgeInsets.symmetric(
+                                horizontal: 12.0,
+                              ),
+                              dividerColor: Colors.transparent,
+                              tabs: const [
+                                Tab(text: 'Sign In'),
+                                Tab(text: 'Sign Up'),
+                              ],
                             ),
-                            labelPadding: EdgeInsets.symmetric(
-                              horizontal: 12.0,
-                            ),
-                            dividerColor: Colors.transparent,
-                            tabs: const [
-                              Tab(text: 'Sign In'),
-                              Tab(text: 'Sign Up'),
-                            ],
                           ),
-                        ),
 
-                        const SizedBox(height: 20),
-                        SizedBox(
-                          height: 400,
-                          child: TabBarView(
-                            controller: _tabController,
-                            children: [
-                              _SignInTab(dark: dark),
-                              _SignUpTab(dark: dark),
-                            ],
+                          const SizedBox(height: 20),
+                          SizedBox(
+                            height: 400,
+                            child: TabBarView(
+                              controller: _tabController,
+                              children: [
+                                _SignInTab(dark: dark),
+                                _SignUpTab(dark: dark),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
           ),
-        ),
-        Positioned(
-          right: 20,
-          top: 20,
-          child: Material(
-            type: MaterialType.transparency,
-            child: InkWell(
-              borderRadius: BorderRadius.circular(20),
-              onTap: () => Navigator.of(context).pop(),
-              child: Container(
-                padding: EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: dark
-                      ? Colors.black.withOpacity(0.6)
-                      : Colors.white.withOpacity(0.8),
-                ),
-                child: Icon(
-                  Icons.close,
-                  color: dark ? TColors.light : TColors.dark,
-                  size: 24,
+          Positioned(
+            right: 20,
+            top: 20,
+            child: Material(
+              type: MaterialType.transparency,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(20),
+                onTap: () => Navigator.of(context).pop(),
+                child: Container(
+                  padding: EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: dark
+                        ? Colors.black.withOpacity(0.6)
+                        : Colors.white.withOpacity(0.8),
+                  ),
+                  child: Icon(
+                    Icons.close,
+                    color: dark ? TColors.light : TColors.dark,
+                    size: 24,
+                  ),
                 ),
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

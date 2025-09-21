@@ -27,163 +27,162 @@ class _ContactUsDialogState extends State<ContactUsDialog> {
   Widget build(BuildContext context) {
     final dark = THelperFunctions.isDarkMode(context);
 
-    return Stack(
-      alignment: Alignment.topRight,
-      children: [
-        Center(
-          child: SizedBox(
-            width: 400,
-            child: Dialog(
-              insetPadding: const EdgeInsets.all(16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30),
-              ),
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(30),
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-                  child: Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: dark
-                          ? Colors.black.withOpacity(0.6)
-                          : Colors.white.withOpacity(0.8),
-                      borderRadius: BorderRadius.circular(30),
-                      border: Border.all(
+    return SingleChildScrollView(
+      child: Stack(
+        alignment: Alignment.topRight,
+        children: [
+          Center(
+            child: SizedBox(
+              width: 400,
+              child: Dialog(
+                insetPadding: const EdgeInsets.all(16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                backgroundColor: Colors.transparent,
+                elevation: 0,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(30),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
                         color: dark
-                            ? Colors.white.withOpacity(0.2)
-                            : Colors.black.withOpacity(0.1),
+                            ? Colors.black.withOpacity(0.6)
+                            : Colors.white.withOpacity(0.8),
+                        borderRadius: BorderRadius.circular(30),
+                        border: Border.all(
+                          color: dark
+                              ? Colors.white.withOpacity(0.2)
+                              : Colors.black.withOpacity(0.1),
+                        ),
                       ),
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        // Company Information Header
-                        Column(
-                          children: [
-                            Text(
-                              'MBB Agrotech',
-                              style: Theme.of(context).textTheme.headlineSmall
-                                  ?.copyWith(
-                                    color: TColors.primary,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                            ),
-                            Text(
-                              'Growing Smart, Feeding the Future',
-                              style: Theme.of(context).textTheme.bodyMedium
-                                  ?.copyWith(
-                                    color: dark
-                                        ? Colors.white70
-                                        : TColors.darkGrey,
-                                    fontStyle: FontStyle.italic,
-                                  ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-
-                        // Contact Form Title
-                        Padding(
-                          padding: const EdgeInsets.only(top: 8.0),
-                          child: Text(
-                            'Contact Our Team',
-                            style: Theme.of(context).textTheme.titleLarge
-                                ?.copyWith(
-                                  color: dark ? Colors.white : TColors.dark,
-                                ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // Company Information Header
+                          Column(
+                            children: [
+                              Text(
+                                'MBB Agrotech',
+                                style: Theme.of(context).textTheme.headlineSmall
+                                    ?.copyWith(
+                                      color: TColors.primary,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                              ),
+                              Text(
+                                'Growing Smart, Feeding the Future',
+                                style: Theme.of(context).textTheme.bodyMedium
+                                    ?.copyWith(
+                                      color: dark
+                                          ? Colors.white70
+                                          : TColors.darkGrey,
+                                      fontStyle: FontStyle.italic,
+                                    ),
+                              ),
+                            ],
                           ),
-                        ),
-                        const SizedBox(height: 16),
+                          const SizedBox(height: 16),
 
-                        // Contact Form
-                        _buildContactForm(dark),
+                          // Contact Form Title
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8.0),
+                            child: Text(
+                              'Contact Our Team',
+                              style: Theme.of(context).textTheme.titleLarge
+                                  ?.copyWith(
+                                    color: dark ? Colors.white : TColors.dark,
+                                  ),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
 
-                        const SizedBox(height: 20),
+                          // Contact Form
+                          _buildContactForm(dark),
 
-                        // Additional Contact Info
-                        _buildContactInfo(dark),
+                          const SizedBox(height: 20),
 
-                        const SizedBox(height: 20),
+                          // Additional Contact Info
+                          _buildContactInfo(dark),
 
-                        // Submit Button
-                        _buildSubmitButton(dark),
-                      ],
+                          const SizedBox(height: 20),
+
+                          // Submit Button
+                          _buildSubmitButton(dark),
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
           ),
-        ),
-        Positioned(
-          right: 20,
-          top: 20,
-          child: Material(
-            type: MaterialType.transparency,
-            child: InkWell(
-              borderRadius: BorderRadius.circular(20),
-              onTap: () => Navigator.of(context).pop(),
-              child: Container(
-                padding: EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: dark
-                      ? Colors.black.withOpacity(0.6)
-                      : Colors.white.withOpacity(0.8),
-                ),
-                child: Icon(
-                  Icons.close,
-                  color: dark ? TColors.light : TColors.dark,
-                  size: 24,
+          Positioned(
+            right: 20,
+            top: 20,
+            child: Material(
+              type: MaterialType.transparency,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(20),
+                onTap: () => Navigator.of(context).pop(),
+                child: Container(
+                  padding: EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: dark
+                        ? Colors.black.withOpacity(0.6)
+                        : Colors.white.withOpacity(0.8),
+                  ),
+                  child: Icon(
+                    Icons.close,
+                    color: dark ? TColors.light : TColors.dark,
+                    size: 24,
+                  ),
                 ),
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
   Widget _buildContactForm(bool dark) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          TextField(
-            controller: _nameController,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: dark ? Colors.white : Colors.black,
-            ),
-            decoration: _inputDecoration('Your Name', Iconsax.user, dark),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        TextField(
+          controller: _nameController,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            color: dark ? Colors.white : Colors.black,
           ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: _emailController,
-            keyboardType: TextInputType.emailAddress,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: dark ? Colors.white : Colors.black,
-            ),
-            decoration: _inputDecoration('Email Address', Iconsax.sms, dark),
+          decoration: _inputDecoration('Your Name', Iconsax.user, dark),
+        ),
+        const SizedBox(height: 12),
+        TextField(
+          controller: _emailController,
+          keyboardType: TextInputType.emailAddress,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            color: dark ? Colors.white : Colors.black,
           ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: _messageController,
-            maxLines: 5,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: dark ? Colors.white : Colors.black,
-            ),
-            decoration: _inputDecoration(
-              'Your Message',
-              Iconsax.message_text,
-              dark,
-            ),
+          decoration: _inputDecoration('Email Address', Iconsax.sms, dark),
+        ),
+        const SizedBox(height: 12),
+        TextField(
+          controller: _messageController,
+          maxLines: 5,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            color: dark ? Colors.white : Colors.black,
           ),
-        ],
-      ),
+          decoration: _inputDecoration(
+            'Your Message',
+            Iconsax.message_text,
+            dark,
+          ),
+        ),
+      ],
     );
   }
 
