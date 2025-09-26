@@ -1,16 +1,29 @@
-# mbb_agrotech_website
+# MBB Agrotech Website
 
-A new Flutter project.
+This is the official website for **MBB Agrotech**, a company focused on **smart farming, hydroponics, aeroponics, consulting, and agri-tech solutions**.  
+The website is built with **Flutter Web** for a modern, fast, and responsive user experience.
 
-## Getting Started
+---
 
-This project is a starting point for a Flutter application.
+## 🌱 About MBB Agrotech
+MBB Agrotech provides innovative farming technologies and services, including:
+- Hydroponics & Aeroponics systems
+- Smart farming automation
+- Agricultural consulting & training
+- Modern greenhouse solutions
+- Agri-tech products & support
 
-A few resources to get you started if this is your first Flutter project:
+---
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## 🚀 Getting Started (Development)
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+This project is a Flutter Web application. To run it locally:
+
+1. Make sure you have Flutter installed.  
+   [Flutter installation guide](https://docs.flutter.dev/get-started/install)
+
+2. Clone this repository:
+   ```bash
+   git clone https://github.com/your-username/mbb_agrotech_website.git
+   cd mbb_agrotech_website
+
